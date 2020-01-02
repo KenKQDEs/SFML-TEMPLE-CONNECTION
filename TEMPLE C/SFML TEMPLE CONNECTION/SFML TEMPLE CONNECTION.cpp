@@ -5,27 +5,29 @@
 #include "STRUCTURA_DATE_HARTA.hpp"
 #include <assert.h>
 #include <math.h>
-#define nmax 5
-#define mmax 5
-#define pi 3.141592653589793
-#define rad 180/pi
-bool isDragging = 0;
-sf::Sprite tiles[nmax][mmax];
+
+
+sf::Sprite tiles[5][5];
 sf::Vector2f mousePos;
 sf::RectangleShape Deck;
 sf::Text Deck_Text;
 sf::SoundBuffer meep_merp;
 sf::SoundBuffer bpress;
 sf::Sound wrong,right;
+sf::Vector2f DIR[4] = { {-1,0},{1,0},{0,-1},{0,+1} };//directii globale
+                      // SUS, JOS, STG, DRT
 int pozitie;
 int ok = 0;
-int BoardState[16][16];
+float BoardState[15][15];
+bool isDragging = 0;
 //scaling
 const float div1 = 3.f;
 const float div2 = 3.f;
 const float tileW = floor(385/div1); //385 div 3 ~128px tile w and h
 const float tileH = floor(385/div2);
 const sf::Vector2f roadScale(0.5f, 0.5f);
+void DoRotation(int poz, bool dreapta);
+
 
 namespace Texture
 {
@@ -118,17 +120,18 @@ void all_load()
     bridge[2].dir[2].first = bridge[0].dir[3].first = 322;
     bridge[2].dir[2].second = bridge[0].dir[3].second = 322;
     ////--
-    bridge[3].dir[0].first = 0;
-    bridge[3].dir[0].second = -1;
-    bridge[3].dir[1].first =-1 ;
-    bridge[3].dir[1].second = 0;
+    bridge[3].dir[0].first = -1;
+    bridge[3].dir[0].second = 0;
+    bridge[3].dir[1].first =0;
+    bridge[3].dir[1].second = -1;
     bridge[3].dir[2].first = bridge[0].dir[3].first = 322;
     bridge[3].dir[2].second = bridge[0].dir[3].second = 322;
     ////--
+
     bridge[4].dir[0].first = -1;
     bridge[4].dir[0].second = 0;
     bridge[4].dir[1].first = 0;
-    bridge[4].dir[1].second = 1;
+    bridge[4].dir[1].second =1;
     bridge[4].dir[2].first = bridge[0].dir[3].first = 322;
     bridge[4].dir[2].second = bridge[0].dir[3].second = 322;
     ////--
@@ -139,10 +142,10 @@ void all_load()
     bridge[5].dir[2].first = bridge[0].dir[3].first = 322;
     bridge[5].dir[2].second = bridge[0].dir[3].second = 322;
     ////--
-    bridge[6].dir[0].first = -1;
-    bridge[6].dir[0].second = 0;
-    bridge[6].dir[1].first = 0;
-    bridge[6].dir[1].second = -1;
+    bridge[6].dir[0].first = 0;
+    bridge[6].dir[0].second = -1;
+    bridge[6].dir[1].first = -1;
+    bridge[6].dir[1].second = 0;
     bridge[6].dir[2].first = bridge[0].dir[3].first = 322;
     bridge[6].dir[2].second = bridge[0].dir[3].second = 322;
     fontc.load(Fonts::bookantq, "BKANT.TTF");
@@ -220,13 +223,13 @@ void drawThings(sf::RenderWindow& window)
            window.draw(tiles[i][j]);
         }
     for (int i = 0; i < 7; i++)
-        if (i == pozitie)
+
         {
-            if (isDragging == 1)
-                bridge[i].pod.setPosition(mousePos);
+        if (isDragging == 1 && i == pozitie)
+            bridge[i].pod.setPosition(mousePos);
+            window.draw(bridge[i].pod);
         }
-        else window.draw(bridge[i].pod);
-    window.draw(bridge[pozitie].pod);
+
 }
 bool checkAvailability(int i, int j)
 {
@@ -242,6 +245,50 @@ bool checkAvailability(int i, int j)
         wrong.play();
         return 0;
     }
+    {
+        int X, Y;
+        switch (pozitie) //in detaliu
+        {
+        case 0:
+        case 1:
+        case 3:
+        case 4:
+        case 5:
+        case 6:
+            X = 3 * i + 1;
+            Y = 3 * j + 1;
+            for (int c = 0; c < 4; c++)
+                if (bridge[pozitie].dir[c].first != 322 && bridge[pozitie].dir[c].second != 322)
+                    if (BoardState[X + bridge[pozitie].dir[c].first][Y + bridge[pozitie].dir[c].second])
+                    {
+                        wrong.play();
+                        return 0;
+                    }
+            break;
+        case 2:
+            X = 3 * i + 1;
+            Y = 3 * j + 1;
+            for (int c = 0; c < 4; c++)
+                if (bridge[pozitie].dir[c].first != 322 && bridge[pozitie].dir[c].second != 322)
+                {
+                    if (BoardState[X + bridge[pozitie].dir[c].first][Y + bridge[pozitie].dir[c].second])
+                    {
+                        wrong.play();
+                        return 0;
+                    }
+                    DoRotation(pozitie, 0);
+                    if (BoardState[X + bridge[pozitie].dir[c].first][Y + bridge[pozitie].dir[c].second])
+                    {
+                        DoRotation(pozitie, 1);
+                        wrong.play();
+                        return 0;
+                    }
+                    DoRotation(pozitie, 1);
+                }
+            break;
+        }
+    }
+ 
     for (int c = 0; c < 4; c++)
         if (bridge[pozitie].dir[c].first != 322 && bridge[pozitie].dir[c].second != 322)
         {
@@ -252,11 +299,153 @@ bool checkAvailability(int i, int j)
                 wrong.play();
                 return 0;
             }
-            if (BoardState[X][Y] == 1)
+            switch (pozitie)
             {
-                wrong.play();
-                return 0;
+            case 0:
+            case 1:
+            case 2:
+
+                if (BoardState[X][Y])
+
+                {
+                    wrong.play();
+                    return 0;
+                }
+
+                if (BoardState[X + bridge[pozitie].dir[c].first][Y + bridge[pozitie].dir[c].second]
+                    || BoardState[X - bridge[pozitie].dir[c].first][Y - bridge[pozitie].dir[c].second])
+                {
+                    wrong.play();
+                    return 0;
+                }
+                break;
+            case 3:
+            case 4:
+                if(c!=0)
+                if (BoardState[X][Y])
+
+                {
+                    wrong.play();
+                    return 0;
+                }
+                if (c != 0)
+                    if (BoardState[X + bridge[pozitie].dir[c].first][Y + bridge[pozitie].dir[c].second]
+                        || BoardState[X - bridge[pozitie].dir[c].first][Y - bridge[pozitie].dir[c].second])
+                    {
+                        wrong.play();
+                        return 0;
+                    }
+                    else 1;
+                else
+                {
+                    if (BoardState[X - bridge[pozitie].dir[c].first][Y - bridge[pozitie].dir[c].second])
+                    {
+                        wrong.play();
+                        return 0;
+                    }
+                    DoRotation(pozitie, 0);
+                    if (BoardState[X - bridge[pozitie].dir[c].first][Y - bridge[pozitie].dir[c].second]>3)
+                    {
+                        DoRotation(pozitie, 1);
+                        wrong.play();
+                        return 0;
+                    }
+                    DoRotation(pozitie, 1);
+                    DoRotation(pozitie, 1);
+                    if (BoardState[X - bridge[pozitie].dir[c].first][Y - bridge[pozitie].dir[c].second]>3) //posibila eroare aici
+                    {
+                        DoRotation(pozitie, 0);
+                        wrong.play();
+                        return 0;
+                    }
+                    DoRotation(pozitie, 0);
+
+                }
+                   
+                break;
+            case 5:
+                if (c != 0)
+                    if (BoardState[X][Y])
+                    {
+                        wrong.play();
+                        return 0;
+                    }
+                    if (BoardState[X - bridge[pozitie].dir[c].first][Y - bridge[pozitie].dir[c].second])
+                    {
+                        wrong.play();
+                        return 0;
+                    }
+                    DoRotation(pozitie, 0);
+                    if (BoardState[X - bridge[pozitie].dir[c].first][Y - bridge[pozitie].dir[c].second]>3)//posibila eroare aici >3
+                    {                                                                                     // 
+                        DoRotation(pozitie, 1);
+                        wrong.play();
+                        return 0;
+                    }
+                    DoRotation(pozitie, 1);
+                    DoRotation(pozitie, 1);
+                    if (BoardState[X - bridge[pozitie].dir[c].first][Y - bridge[pozitie].dir[c].second]>3)
+                    {
+                        DoRotation(pozitie, 0);
+                        wrong.play();
+                        return 0;
+                    }
+                    DoRotation(pozitie, 0);
+                    if (c == 1)
+                        if( BoardState[X + bridge[pozitie].dir[0].first][Y + bridge[pozitie].dir[0].second])
+                    {
+                        DoRotation(pozitie, 0);
+                        wrong.play();
+                        return 0;
+                    }
+                break;
+            case 6:
+                if (c != 0)
+                    if (BoardState[X][Y])
+
+                    {
+                        wrong.play();
+                        return 0;
+                    }
+                    if (BoardState[X - bridge[pozitie].dir[c].first][Y - bridge[pozitie].dir[c].second])
+                    {
+                        wrong.play();
+                        return 0;
+                    }
+                    DoRotation(pozitie, 0);
+                    if (BoardState[X - bridge[pozitie].dir[c].first][Y - bridge[pozitie].dir[c].second])
+                    {
+                        DoRotation(pozitie, 1);
+                        wrong.play();
+                        return 0;
+                    }
+                    DoRotation(pozitie, 1);
+                    DoRotation(pozitie, 1);
+                    if (BoardState[X - bridge[pozitie].dir[c].first][Y - bridge[pozitie].dir[c].second])
+                    {
+                        DoRotation(pozitie, 0);
+                        wrong.play();
+                        return 0;
+                    }
+                    DoRotation(pozitie, 0);
+                    if (c == 1)
+                    {
+                        if (BoardState[X - bridge[pozitie].dir[c].first][Y - bridge[pozitie].dir[c].second])
+                        {
+                            wrong.play();
+                            return 0;
+                        }
+                        DoRotation(pozitie, 1);
+                        if (BoardState[X - bridge[pozitie].dir[c].first][Y - bridge[pozitie].dir[c].second])
+                        {
+                            wrong.play();
+                            return 0;
+                        }
+                        DoRotation(pozitie, 0);
+                    }
+                    break;
             }
+  
         }
     right.play();
     return 1;
@@ -267,13 +456,94 @@ bool punePiesa(sf::Sprite& tile,int i, int j)
     {
         sf::FloatRect tile_bounds = tile.getGlobalBounds();
         bridge[pozitie].pod.setPosition(tile_bounds.left + tile_bounds.width / 2, tile_bounds.top + tile_bounds.height / 2);
-        BoardState[1 + i * 3][3 * j+1] = 1;
+        BoardState[1 + i * 3][3 * j+1] = 1+pozitie;
+        {
+            int X, Y;
+            switch (pozitie) //in detaliu
+            {
+            case 0:
+            case 1:
+            case 3:
+            case 4:
+            case 5:
+            case 6:
+                 X = 3 * i + 1;
+                 Y = 3 * j + 1;
+                for (int c = 0; c < 4; c++)
+                    if (bridge[pozitie].dir[c].first != 322 && bridge[pozitie].dir[c].second != 322)
+                        BoardState[X + bridge[pozitie].dir[c].first][Y + bridge[pozitie].dir[c].second] = 1 + pozitie;
+                break;
+            case 2:
+                X = 3 * i + 1;
+                Y = 3 * j + 1;
+                for (int c = 0; c < 4; c++)
+                    if (bridge[pozitie].dir[c].first != 322 && bridge[pozitie].dir[c].second != 322)
+                    {
+                        BoardState[X + bridge[pozitie].dir[c].first][Y + bridge[pozitie].dir[c].second] = 1 + pozitie;
+                        DoRotation(pozitie, 0);
+                        BoardState[X + bridge[pozitie].dir[c].first][Y + bridge[pozitie].dir[c].second] = 1 + pozitie;
+                        DoRotation(pozitie, 1);
+                    }
+                break;
+          
+            }
+        }
+      
         for (int c = 0; c < 4; c++)
             if (bridge[pozitie].dir[c].first != 322 && bridge[pozitie].dir[c].second != 322)
             {
                 int X = 3 * i + 1 + 3 * bridge[pozitie].dir[c].first;
                 int Y = 3 * j + 1 + 3 * bridge[pozitie].dir[c].second;
-                BoardState[X][Y] = 1;
+                switch (pozitie)
+                {
+                case 0:
+                case 1:
+                case 2:
+                    BoardState[X][Y] = 1 + pozitie;
+                    BoardState[X + bridge[pozitie].dir[c].first][Y + bridge[pozitie].dir[c].second] = 1 + pozitie;
+                    BoardState[X - bridge[pozitie].dir[c].first][Y - bridge[pozitie].dir[c].second] = 1 + pozitie;
+                    break;
+                case 3:
+                case 4:
+                    if (c != 0)
+                            BoardState[X][Y] = 1 + pozitie;
+                    if (c != 0)
+                    {
+                       BoardState[X + bridge[pozitie].dir[c].first][Y + bridge[pozitie].dir[c].second] = 1 + pozitie;
+                       BoardState[X - bridge[pozitie].dir[c].first][Y - bridge[pozitie].dir[c].second] = 1 + pozitie;
+
+                    }
+                    else
+                    {
+                        BoardState[X - bridge[pozitie].dir[c].first][Y - bridge[pozitie].dir[c].second] = 1 + pozitie;
+                    }
+
+                    break;
+                case 5:
+                    if (c == 1)
+                    {
+                        BoardState[X][Y] = 1 + pozitie;
+                        BoardState[X - bridge[pozitie].dir[c].first][Y - bridge[pozitie].dir[c].second] = 1 + pozitie;
+                        BoardState[X + bridge[pozitie].dir[0].first][Y + bridge[pozitie].dir[0].second] = 1 + pozitie;
+                    }
+                    else
+                    BoardState[X - bridge[pozitie].dir[c].first][Y - bridge[pozitie].dir[c].second]= 1 + pozitie;
+                    
+                    break;
+                case 6:
+                    if (c == 1)
+                            BoardState[X][Y] = 1 + pozitie;
+                    BoardState[X - bridge[pozitie].dir[c].first][Y - bridge[pozitie].dir[c].second] = 1 + pozitie;
+                    if (c == 1)
+                    {
+                       
+                        DoRotation(pozitie, 0);
+                        BoardState[X - bridge[pozitie].dir[c].first][Y - bridge[pozitie].dir[c].second] = 1 + pozitie;
+                        DoRotation(pozitie, 1);
+                    }
+                    break;
+                }
+                 
             }
         bridge[pozitie].i = i;
         bridge[pozitie].j = j;
@@ -291,15 +561,94 @@ bool punePiesa(sf::Sprite& tile,int i, int j)
 void destroy(int pos)
 {
     std::cout << "se distruge podul" << pos << std::endl;
-  
+
     int i_board = 3 * bridge[pos].i + 1;
     int j_board = 3 * bridge[pos].j + 1;
     BoardState[i_board][j_board] = 0;
-    
+    {
+        int X = i_board, Y = j_board;
+        switch (pos) //in detaliu
+        {
+        case 0:
+        case 1:
+        case 3:
+        case 4:
+        case 5:
+        case 6:
+            for (int c = 0; c < 4; c++)
+                if (bridge[pos].dir[c].first != 322 && bridge[pos].dir[c].second != 322)
+                    BoardState[X + bridge[pos].dir[c].first][Y + bridge[pos].dir[c].second] = 0;
+            break;
+        case 2:
+            for (int c = 0; c < 4; c++)
+                if (bridge[pos].dir[c].first != 322 && bridge[pos].dir[c].second != 322)
+                {
+                    BoardState[X + bridge[pos].dir[c].first][Y + bridge[pos].dir[c].second] = 0;
+                    DoRotation(pos, 0);
+                    BoardState[X + bridge[pos].dir[c].first][Y + bridge[pos].dir[c].second] = 0;
+                    DoRotation(pos, 1);
+                }
+            break;
+        }
+    }
+
     for (int c = 0; c < 4; c++)
         if (bridge[pos].dir[c].first != 322 && bridge[pos].dir[c].second != 322)
         {
-            BoardState[i_board + 3*bridge[pos].dir[c].first][j_board + 3 * bridge[pos].dir[c].second] = 0;
+            int  X = i_board + 3 * bridge[pos].dir[c].first;
+            int  Y = j_board + 3 * bridge[pos].dir[c].second;
+            switch (pos)
+            {
+            case 0:
+            case 1:
+            case 2:
+                BoardState[X][Y] = 0;
+                BoardState[X + bridge[pos].dir[c].first][Y + bridge[pos].dir[c].second] = 0;
+                BoardState[X - bridge[pos].dir[c].first][Y - bridge[pos].dir[c].second] = 0;
+
+                break;
+            case 3:
+            case 4:
+                if (c != 0)
+                    BoardState[X][Y] = 0;
+                if (c != 0)
+                {
+                    BoardState[X + bridge[pos].dir[c].first][Y + bridge[pos].dir[c].second] = 0;
+                    BoardState[X - bridge[pos].dir[c].first][Y - bridge[pos].dir[c].second] = 0;
+
+                }
+                else
+                {
+                    BoardState[X - bridge[pos].dir[c].first][Y - bridge[pos].dir[c].second] = 0;
+                }
+
+                break;
+            case 5:
+                if (c == 1)
+                {
+                    BoardState[X][Y] = 0;
+                    BoardState[X - bridge[pos].dir[c].first][Y - bridge[pos].dir[c].second] = 0;
+                    BoardState[X + bridge[pos].dir[0].first][Y + bridge[pos].dir[0].second] = 0;
+                }
+                else
+                    BoardState[X - bridge[pos].dir[c].first][Y - bridge[pos].dir[c].second] = 0;
+                break;
+            case 6:
+                if (c == 1)
+                    BoardState[X][Y] = 0;
+                BoardState[X - bridge[pos].dir[c].first][Y - bridge[pos].dir[c].second] = 0;
+                if (c == 1)
+                {
+
+                    DoRotation(pos, 0);
+                    BoardState[X - bridge[pos].dir[c].first][Y - bridge[pos].dir[c].second] = 0;
+                    DoRotation(pos, 1);
+                }
+                else
+                    BoardState[X + bridge[pos].dir[c].first][Y + bridge[pos].dir[c].second] = 0;
+                break;
+
+            }
         }
 }
 int handleMouseClick(sf::Event e)
@@ -373,7 +722,7 @@ void DoRotation(int poz,bool dreapta)
                     bridge[poz].dir[i].first = 0; bridge[poz].dir[i].second = -1;
                 }
                 std::cout << "LA STANGA:" << bridge[poz].dir[i].first << " " << bridge[poz].dir[i].second << std::endl;
-                std::cout << "POZ:" << poz;
+                std::cout << "POZ:" << poz<<std::endl;
         }
         else
         {
@@ -398,7 +747,7 @@ void DoRotation(int poz,bool dreapta)
                 }
                 std::cout << "LA DREAPTA:" << bridge[poz].dir[i].first << " " << bridge[poz].dir[i].second << std::endl;
         }
-        
+    std::cout << "_______________" << std::endl;
 }
 void handle_Events(sf::RenderWindow& window)
 {
@@ -441,6 +790,7 @@ void handle_Events(sf::RenderWindow& window)
 
 int main()
 {
+
     all_load();
     sf::RenderWindow window(sf::VideoMode(1600, 900), "text", sf::Style::Close);
     window.setFramerateLimit(240);
@@ -451,4 +801,5 @@ int main()
         drawThings(window);
         window.display();
     }
+   
 }
