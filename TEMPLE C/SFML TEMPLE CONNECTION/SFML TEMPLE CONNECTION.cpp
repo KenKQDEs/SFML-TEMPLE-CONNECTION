@@ -9,29 +9,129 @@
 #include <iomanip>
 std::fstream f;
 
-sf::Sprite temples[3];
+struct _temples
+{
+    int i = -1, j = -1;
+    sf::Sprite temple;
+}temples[3];
+struct bridge_
+{
+    sf::Sprite pod;
+    pereche<int, int> dir[4];
+    int i = -1, j = -1;
+    sf::RectangleShape Collision[4];
+    int maxCol;
+}bridge[7];
 sf::Sprite tiles[5][5];
 sf::Vector2f mousePos;
 sf::RectangleShape Deck;
+sf::Sprite donebutton;
 sf::Text Deck_Text;
 sf::SoundBuffer meep_merp;
 sf::SoundBuffer bpress;
 sf::Sound wrong,right;
+sf::SoundBuffer charge;
+sf::Sound win;
+sf::SoundBuffer check;
+sf::Sound checkbutton;
 bool isTemple1present = 0,
 isTemple2present=0,
-isTemple3presenet=0;
+isTemple3present=0;
 int pozitie;
 int ok = 0;
 float BoardState[16][16];
+bool viz[16][16];
 bool isDragging = 0;
+bool alreadyWon = 0;
 //scaling
 const float div1 = 3.f;
 const float div2 = 3.f;
 const float tileW = floor(385/div1); //385 div 3 ~128px tile w and h
 const float tileH = floor(385/div2);
-const sf::Vector2f roadScale(0.5f, 0.5f);
 void DoRotation(int poz, bool dreapta);
+void read();
+void reset_level()
+{
+    read();
+    alreadyWon = 0;
+    pozitie = 0;
+    ok = 0;
+    isDragging = 0;
+    for (int i = 0; i < 16; i++)
+        for (int j = 0; j < 16; j++)
+            viz[i][j] = 0;
+    bridge[0].dir[0].first = 0;
+    bridge[0].dir[0].second = -1;
+    bridge[0].dir[1].first = 1;
+    bridge[0].dir[1].second = 0;
+    bridge[0].dir[2].first = bridge[0].dir[3].first = 322;
+    bridge[0].dir[2].second = bridge[0].dir[3].second = 322;
+    ////--
+    bridge[1].dir[0].first = 0;
+    bridge[1].dir[0].second = -1;
+    bridge[1].dir[1].first = 1;
+    bridge[1].dir[1].second = 0;
+    bridge[1].dir[2].first = bridge[0].dir[3].first = 322;
+    bridge[1].dir[2].second = bridge[0].dir[3].second = 322;
+    ////--
+    bridge[2].dir[0].first = 0;
+    bridge[2].dir[0].second = 1;
+    bridge[2].dir[1].first = 322;
+    bridge[2].dir[1].second = 322;
+    bridge[2].dir[2].first = bridge[0].dir[3].first = 322;
+    bridge[2].dir[2].second = bridge[0].dir[3].second = 322;
+    ////--
+    bridge[3].dir[0].first = -1;
+    bridge[3].dir[0].second = 0;
+    bridge[3].dir[1].first = 0;
+    bridge[3].dir[1].second = -1;
+    bridge[3].dir[2].first = bridge[0].dir[3].first = 322;
+    bridge[3].dir[2].second = bridge[0].dir[3].second = 322;
+    ////--
 
+    bridge[4].dir[0].first = -1;
+    bridge[4].dir[0].second = 0;
+    bridge[4].dir[1].first = 0;
+    bridge[4].dir[1].second = 1;
+    bridge[4].dir[2].first = bridge[0].dir[3].first = 322;
+    bridge[4].dir[2].second = bridge[0].dir[3].second = 322;
+    ////--
+    bridge[5].dir[0].first = -1;
+    bridge[5].dir[0].second = 0;
+    bridge[5].dir[1].first = 0;
+    bridge[5].dir[1].second = 1;
+    bridge[5].dir[2].first = bridge[0].dir[3].first = 322;
+    bridge[5].dir[2].second = bridge[0].dir[3].second = 322;
+    ////--
+    bridge[6].dir[0].first = 0;
+    bridge[6].dir[0].second = -1;
+    bridge[6].dir[1].first = -1;
+    bridge[6].dir[1].second = 0;
+    bridge[6].dir[2].first = bridge[0].dir[3].first = 322;
+    bridge[6].dir[2].second = bridge[0].dir[3].second = 322;
+    for (int i = 0; i < 7; i++)
+        bridge[i].i = bridge[i].j = -1;
+
+   /* const float transformspeed = 0.5;
+    sf::Clock time;
+    sf::Time timpcurent;
+    for (int i = 0; i < 7; i++)
+        for (int t = 255; t > 0; t = t - transformspeed*timpcurent.asSeconds())
+        {
+            timpcurent = time.restart();
+            bridge[i].pod.setColor(sf::Color(255, 255, 255, t));
+        }
+        */
+    bridge[0].pod.setPosition(935, 216);
+    bridge[1].pod.setPosition(1171, 216);
+    bridge[2].pod.setPosition(1278, 253);
+    bridge[3].pod.setPosition(934, 553);
+    bridge[4].pod.setPosition(1043, 520);
+    bridge[5].pod.setPosition(1321, 553);
+    bridge[6].pod.setPosition(1147, 722);
+ 
+   
+}
 
 namespace Texture
 {
@@ -49,16 +149,10 @@ namespace Texture
         temple1,
         temple2,
         temple3,
-        //etc
+        donebutton,
     };
 }
-struct bridge_
-{
-    sf::Sprite pod;
-    Texture::ID tex;
-    pereche<int,int> dir[4];
-    int i = -1, j = -1;
-}bridge[7];
+
 namespace Fonts
 {   
     enum ID
@@ -94,6 +188,103 @@ struct ResourceHolder
 };
 ResourceHolder<Texture::ID, sf::Texture> a;
 ResourceHolder<Fonts::ID, sf::Font> fontc;
+
+void parcurgere(int i,int j)
+{
+    std::cout << "_______________" << std::endl;
+    if (i < 0 || i>14 || j < 0 || j>14) return;
+    if (BoardState[i][j]&& viz[i][j] !=1) viz[i][j] = 1;
+    else return;
+    sf::sleep(sf::milliseconds(100));
+    for (int k = 0; k < 15; k++)
+    {
+        for (int q = 0; q < 15; q++)
+            std::cout << viz[k][q] << " ";
+        std::cout << std::endl;
+    }
+    if((i-1)%3==0&&(j-1)%3==0)
+    {
+        
+            if (BoardState[i - 1][j] > 3 && BoardState[i + 1][j] > 3 && BoardState[i - 1][j] != BoardState[i + 1][j])
+            {
+                if (BoardState[i][j] != 15) viz[i][j] = 0;
+                parcurgere(i - 1, j);
+                parcurgere(i + 1, j);
+                BoardState[i-1][j] = 0;
+                BoardState[i+1][j] = 0;
+            }
+            else
+            if (BoardState[i][j - 1] > 3 && BoardState[i][j + 1] > 3 && BoardState[i][j - 1] != BoardState[i][j + 1])
+            {
+                if (BoardState[i][j] != 15) viz[i][j] = 0;
+                parcurgere(i, j - 1);
+                parcurgere(i, j + 1);
+                BoardState[i][j - 1] = 0;
+                BoardState[i][j + 1] = 0;
+            }
+            else
+            {
+                parcurgere(i - 1, j);
+                parcurgere(i + 1, j);
+                parcurgere(i, j - 1);
+                parcurgere(i, j + 1);
+            }
+    }
+    else
+    {
+        parcurgere(i - 1, j);
+        parcurgere(i + 1, j);
+        parcurgere(i, j - 1);
+        parcurgere(i, j + 1);
+    }
+}
+void prepWork()
+{
+    for(int i=0;i<5;i++)
+        for (int j = 0; j < 5; j++)
+        {
+            int X = 3 * i + 1;
+            int Y = 3 * j + 1;
+            if (BoardState[X][Y]==0)
+                if (BoardState[X - 1][Y] > 3 && BoardState[X + 1][Y] > 3 && BoardState[X - 1][Y] != BoardState[X + 1][Y]) BoardState[X][Y] = 15;
+                else  if (BoardState[X][Y - 1] > 3 && BoardState[X][Y + 1] > 3 && BoardState[X][Y - 1] != BoardState[X][Y + 1]) BoardState[X][Y] = 15;
+        }
+    //+ cazul cu un singur pod
+}
+void checkWin()
+{
+    prepWork();
+    for(int i=0;i<3;i++)
+        if (temples[i].i != -1 && temples[i].j != -1) 
+        {
+            parcurgere(3 * temples[i].i + 1, 3 * temples[i].j + 1);
+            break;
+        }
+ 
+    for (int i = 0; i < 15; i++)
+    {
+        for (int j = 0; j < 15; j++)
+            std::cout << viz[i][j] << " ";
+        std::cout << std::endl;
+    }
+    if (
+        (!isTemple1present || viz[3 * temples[0].i + 1][3 * temples[0].j + 1]) &&
+        (!isTemple2present || viz[3 * temples[1].i + 1][3 * temples[1].j + 1]) &&
+        (!isTemple2present || viz[3 * temples[2].i + 1][3 * temples[2].j + 1])
+        )
+    {
+        std::cout << "WIN" << std::endl;
+        //wait 5 seconds
+        //back to menu
+        win.play();
+        alreadyWon = 1;
+    }
+
+    else {
+            std::cout << "LOSE" << std::endl;
+            reset_level();
+         }
+}
 void analyze()
 {
 
@@ -105,36 +296,43 @@ void analyze()
             if (BoardState[X][Y] == 10)
             {
                 sf::FloatRect tile_bounds = tiles[i][j].getGlobalBounds();
-                temples[0].setOrigin(56, 72);
+                temples[0].temple.setOrigin(56, 72);
                
-                temples[0].setPosition(tile_bounds.left + tile_bounds.width / 2.f, tile_bounds.top + tile_bounds.height / 2);
+                temples[0].temple.setPosition(tile_bounds.left + tile_bounds.width / 2.f, tile_bounds.top + tile_bounds.height / 2);
 
-                if(BoardState[X][Y+1]&&BoardState[X+1][Y]) temples[0].setRotation(90);
-                if (BoardState[X][Y - 1] && BoardState[X + 1][Y]) temples[0].setRotation(180);
-                if (BoardState[X-1][Y] && BoardState[X ][Y-1]) temples[0].setRotation(270);
+                if(BoardState[X][Y+1]&&BoardState[X+1][Y]) temples[0].temple.setRotation(90);
+                if (BoardState[X][Y - 1] && BoardState[X + 1][Y]) temples[0].temple.setRotation(180);
+                if (BoardState[X-1][Y] && BoardState[X ][Y-1]) temples[0].temple.setRotation(270);
+                isTemple1present = 1;
+                temples[0].i = i;
+                temples[0].j = j;
     
             }
             if (BoardState[X][Y] == 11)
             {
                 sf::FloatRect tile_bounds = tiles[i][j].getGlobalBounds();
-                temples[1].setOrigin(56, 55);
-                temples[1].setPosition(tile_bounds.left + tile_bounds.width / 2.f, tile_bounds.top + tile_bounds.height / 2);
-                if (BoardState[X ][Y+1] && BoardState[X+1][Y]&& BoardState[X][Y + 2]) temples[1].setRotation(0);
-                if (BoardState[X][Y-1] && BoardState[X+1][Y]&& BoardState[X + 2][Y]) temples[1].setRotation(90);
-                if (BoardState[X][Y-2] && BoardState[X][Y - 1]&&BoardState[X+1][Y]) temples[1].setRotation(180);
-                if (BoardState[X-1][Y] && BoardState[X - 2][Y]&&BoardState[X][Y+1]) temples[1].setRotation(270);
- 
+                temples[1].temple.setOrigin(56, 55);
+                temples[1].temple.setPosition(tile_bounds.left + tile_bounds.width / 2.f, tile_bounds.top + tile_bounds.height / 2);
+                if (BoardState[X ][Y+1] && BoardState[X+1][Y]&& BoardState[X][Y + 2]) temples[1].temple.setRotation(0);
+                if (BoardState[X][Y-1] && BoardState[X+1][Y]&& BoardState[X + 2][Y]) temples[1].temple.setRotation(90);
+                if (BoardState[X][Y-2] && BoardState[X][Y - 1]&&BoardState[X+1][Y]) temples[1].temple.setRotation(180);
+                if (BoardState[X-1][Y] && BoardState[X - 2][Y]&&BoardState[X][Y+1]) temples[1].temple.setRotation(270);
+                isTemple2present = 1;
+                temples[1].i = i;
+                temples[1].j = j;
             }
             if (BoardState[X][Y] == 12)
             {
                 sf::FloatRect tile_bounds = tiles[i][j].getGlobalBounds();
-                temples[2].setOrigin(74, 129);
-                temples[2].setPosition(tile_bounds.left + tile_bounds.width / 2.f, tile_bounds.top + tile_bounds.height / 2);
-                if (BoardState[X][Y - 1] && BoardState[X - 1][Y] && BoardState[X-2][Y]) temples[2].setRotation(0);
-                if (BoardState[X-1][Y] && BoardState[X ][Y+1] && BoardState[X ][Y+2]) temples[2].setRotation(90);
-                if (BoardState[X+1][Y] && BoardState[X+2][Y] && BoardState[X ][Y+1]) temples[2].setRotation(180);
-                if (BoardState[X][Y-1] && BoardState[X][Y-2] && BoardState[X+1][Y]) temples[2].setRotation(270);
-           
+                temples[2].temple.setOrigin(74, 129);
+                temples[2].temple.setPosition(tile_bounds.left + tile_bounds.width / 2.f, tile_bounds.top + tile_bounds.height / 2);
+                if (BoardState[X][Y - 1] && BoardState[X - 1][Y] && BoardState[X-2][Y]) temples[2].temple.setRotation(0);
+                if (BoardState[X-1][Y] && BoardState[X ][Y+1] && BoardState[X ][Y+2]) temples[2].temple.setRotation(90);
+                if (BoardState[X+1][Y] && BoardState[X+2][Y] && BoardState[X ][Y+1]) temples[2].temple.setRotation(180);
+                if (BoardState[X][Y-1] && BoardState[X][Y-2] && BoardState[X+1][Y]) temples[2].temple.setRotation(270);
+                isTemple3present = 1;
+                temples[2].i = i;
+                temples[2].j = j;
             }
         }
 
@@ -143,9 +341,13 @@ void all_load()
 {
     meep_merp.loadFromFile("immune.wav");
     bpress.loadFromFile("Button_Push.wav");
+    charge.loadFromFile("charge.wav");
+    check.loadFromFile("checkbutton.wav");
     right.setBuffer(bpress);
     wrong.setBuffer(meep_merp);
     wrong.setVolume(50);
+    win.setBuffer(charge);
+    checkbutton.setBuffer(check);
 
     ////
     ////initializare directii
@@ -212,6 +414,7 @@ void all_load()
     a.load(Texture::temple1, "temple1.png");
     a.load(Texture::temple2, "temple2.png");
     a.load(Texture::temple3, "temple3.png");
+    a.load(Texture::donebutton, "donebutton.png");
 
     for (int i = 0; i < 5; i++) //Initialize tiles
         for (int j = 0; j < 5; j++)
@@ -221,9 +424,9 @@ void all_load()
             tiles[i][j].setPosition(sf::Vector2f(100 + j * tileH, 130 + i * tileW));
             tiles[i][j].setScale(sf::Vector2f(1 / div1, 1 / div2));
         }
-    temples[0].setTexture(a.get(Texture::temple1));
-    temples[1].setTexture(a.get(Texture::temple2));
-    temples[2].setTexture(a.get(Texture::temple3));
+    temples[0].temple.setTexture(a.get(Texture::temple1));
+    temples[1].temple.setTexture(a.get(Texture::temple2));
+    temples[2].temple.setTexture(a.get(Texture::temple3));
     Deck.setOrigin(0, 0);
     Deck.setPosition(740, 108);
     Deck.setSize(sf::Vector2f(760, 645));
@@ -232,49 +435,69 @@ void all_load()
     Deck_Text.setFont(fontc.get(Fonts::bookantq));
     Deck_Text.setString("DECK AREA");
     Deck_Text.setFillColor(sf::Color::White);
+
+    donebutton.setTexture(a.get(Texture::donebutton));
+    donebutton.setPosition(178, 802);
+    donebutton.setOrigin(345 / 2.f, 141 / 2.f);
+    donebutton.setScale(0.5, 0.5);
+
+
     
     bridge[0].pod.setPosition(935, 216);
     bridge[0].pod.setOrigin(190, 60);
     bridge[0].pod.setTexture(a.get(Texture::road1));
-    bridge[0].tex = Texture::road1;
+    bridge[0].maxCol = 2;
+    /*  bridge[0].Collision[0].setFillColor(sf::Color(0, 0, 0, 0));
+    bridge[0].Collision[1].setFillColor(sf::Color(0, 0, 0, 0));
+    bridge[0].Collision[0].setOutlineColor(sf::Color(0, 255, 255, 0));
+    bridge[0].Collision[1].setOutlineColor(sf::Color(0, 255, 255, 0));
+    bridge[0].Collision[0].setOutlineThickness(5);*/
+  
+
+
+
+
+
+  
     bridge[1].pod.setPosition(1171, 216);
     bridge[1].pod.setOrigin(190, 60);
     bridge[1].pod.setTexture(a.get(Texture::road2));
-    bridge[1].tex = Texture::road2;
+
 
     bridge[2].pod.setPosition(1278, 253);
     bridge[2].pod.setOrigin(45, 65);
     bridge[2].pod.setTexture(a.get(Texture::road3));
-    bridge[2].tex = Texture::road3;
+
 
     bridge[3].pod.setPosition(934, 553);
-    bridge[3].pod.setOrigin(201, 215);
+    bridge[3].pod.setOrigin(201, 215-85);
     // bridge[3].pod.setScale(roadScale);
     bridge[3].pod.setTexture(a.get(Texture::bridge1));
-    bridge[3].tex = Texture::bridge1;
+
 
     bridge[4].pod.setPosition(1043, 520);
-    bridge[4].pod.setOrigin(45, 215);
+    bridge[4].pod.setOrigin(45, 215-85);
     // bridge[4].pod.setScale(roadScale);
     bridge[4].pod.setTexture(a.get(Texture::bridge2));
-    bridge[4].tex = Texture::bridge2;
+
 
     bridge[5].pod.setPosition(1321, 553);
     bridge[5].pod.setOrigin(45, 145);
     // bridge[5].pod.setScale(roadScale);
     bridge[5].pod.setTexture(a.get(Texture::bridge3));
-    bridge[5].tex = Texture::bridge3;
+
 
     bridge[6].pod.setPosition(1147, 722);
     bridge[6].pod.setOrigin(127, 170);
     // bridge[6].pod.setScale(roadScale);
     bridge[6].pod.setTexture(a.get(Texture::bridge4));
-    bridge[6].tex = Texture::bridge4;
+   
 }
 void drawThings(sf::RenderWindow& window)
 {
     window.draw(Deck);
     window.draw(Deck_Text);
+    window.draw(donebutton);
     for(int i=0;i<5;i++)
         for (int j = 0; j < 5; j++)
         {
@@ -312,7 +535,7 @@ void drawThings(sf::RenderWindow& window)
                 window.draw(bridge[i].pod);
         }
     for (int i = 0; i < 3; i++)
-        window.draw(temples[i]);
+        window.draw(temples[i].temple);
     if (isDragging) window.draw(bridge[pozitie].pod);
    
 
@@ -337,8 +560,44 @@ bool checkAvailability(int i, int j)
         {
         case 0:
         case 1:
+            X = 3 * i + 1;
+            Y = 3 * j + 1;
+            for (int c = 0; c < 4; c++)
+                if (bridge[pozitie].dir[c].first != 322 && bridge[pozitie].dir[c].second != 322)
+                {
+                    if (BoardState[X + bridge[pozitie].dir[c].first][Y + bridge[pozitie].dir[c].second])
+                    {
+                        wrong.play();
+                        return 0;
+                    }
+                    if (BoardState[X - bridge[pozitie].dir[c].first][Y - bridge[pozitie].dir[c].second])
+                    {
+                        wrong.play();
+                        return 0;
+                    }
+                }
+
+            break;
         case 3:
         case 4:
+            X = 3 * i + 1;
+            Y = 3 * j + 1;
+            for (int c = 0; c < 4; c++)
+                if (bridge[pozitie].dir[c].first != 322 && bridge[pozitie].dir[c].second != 322)
+                {
+                    if (BoardState[X + bridge[pozitie].dir[c].first][Y + bridge[pozitie].dir[c].second])
+                    {
+                        wrong.play();
+                        return 0;
+                    }
+                    if (BoardState[X - bridge[pozitie].dir[c].first][Y - bridge[pozitie].dir[c].second])
+                    {
+                        wrong.play();
+                        return 0;
+                    }
+                }
+
+            break;
         case 5:
         case 6:
             X = 3 * i + 1;
@@ -433,13 +692,15 @@ bool checkAvailability(int i, int j)
                     return 0;
                 }
                 if (c != 0)
+                {
                     if (BoardState[X + bridge[pozitie].dir[c].first][Y + bridge[pozitie].dir[c].second]
                         || BoardState[X - bridge[pozitie].dir[c].first][Y - bridge[pozitie].dir[c].second])
                     {
                         wrong.play();
                         return 0;
                     }
-                    else 1;
+
+                }
                 else
                 {
                     if (BoardState[X - bridge[pozitie].dir[c].first][Y - bridge[pozitie].dir[c].second])
@@ -461,7 +722,7 @@ bool checkAvailability(int i, int j)
                     }
 
                 }
-                   
+             
                 break;
             case 5:
                 if (c != 0)
@@ -631,7 +892,7 @@ bool punePiesa(sf::Sprite& tile,int i, int j)
                     {
                         BoardState[X - bridge[pozitie].dir[c].first][Y - bridge[pozitie].dir[c].second] = 1 + pozitie;
                     }
-
+                  
                     break;
                 case 5:
                     if (c == 1)
@@ -771,14 +1032,16 @@ int handleMouseClick(sf::Event e)
 {
     int pos = -1;
     if (e.mouseButton.button == sf::Mouse::Left)
+    {
         if (isDragging == 0)
         {
-            for (int i = 0; i < 7; i++)
+            if(alreadyWon==0)
+            for (int i = 6; i >= 0; i--)
                 if (bridge[i].pod.getGlobalBounds().contains(e.mouseButton.x, e.mouseButton.y))
                 {
-                    if (Deck.getGlobalBounds().contains(e.mouseButton.x, e.mouseButton.y) == 0)
+                    if (!Deck.getGlobalBounds().contains(e.mouseButton.x, e.mouseButton.y))
                         destroy(i);
-               
+
                     isDragging = 1;
                     return i;
                 }
@@ -799,6 +1062,13 @@ int handleMouseClick(sf::Event e)
                         return -1;
                     }
         }
+        if (donebutton.getGlobalBounds().contains(e.mouseButton.x, e.mouseButton.y))
+        {
+            if(alreadyWon==0)
+            checkbutton.play();
+            checkWin();
+        }
+    }
     if (e.mouseButton.button == sf::Mouse::Right && isDragging)
     {
         isDragging = 0;
@@ -909,19 +1179,20 @@ void handle_Events(sf::RenderWindow& window)
 }
 void read()
 {
+    f.open("level1.txt");
     for (int i = 0; i < 15; i++)
         for (int j = 0; j < 15; j++)
             f >> BoardState[i][j];
+    f.close();
 }
 int main()
 {
-    f.open("level1.txt");
+   
     all_load();
     read();
     analyze();
-
     sf::RenderWindow window(sf::VideoMode(1600, 900), "text", sf::Style::Close);
-    window.setFramerateLimit(240);
+    window.setFramerateLimit(60);
     while (window.isOpen())
     {
         handle_Events(window);
