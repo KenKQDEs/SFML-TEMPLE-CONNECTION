@@ -7,8 +7,9 @@
 #include <math.h>
 #include <fstream>
 #include <iomanip>
+#include <cstring>
 std::fstream f;
-
+char filename[30];
 struct _temples
 {
     int i = -1, j = -1;
@@ -50,9 +51,11 @@ const float tileW = floor(385 / div1); //385 div 3 ~128px tile w and h
 const float tileH = floor(385 / div2);
 void DoRotation(int poz, bool dreapta);
 void read();
+void analyze();
 void reset_level()
 {
     read();
+    analyze();
     alreadyWon = 0;
     pozitie = 0;
     ok = 0;
@@ -1243,12 +1246,27 @@ void handle_Events(sf::RenderWindow& window)
                 }
             }
             break;
+        case sf::Event::KeyPressed:
+            switch (event.key.code)
+            {
+            case sf::Keyboard::Num1:
+                strcpy_s(filename, "level1.txt");
+                std::cout << "SADASDASDSADASDASF";
+                reset_level();
+                break;
+            case sf::Keyboard::Num2:
+                strcpy_s(filename, "level2.txt");
+                std::cout << "SADASDASDSADASDASF";
+                reset_level();
+                break;
+            }
+            break;
         }
     }
 }
 void read()
 {
-    f.open("level1.txt");
+    f.open(filename);
     for (int i = 0; i < 15; i++)
         for (int j = 0; j < 15; j++)
             f >> BoardState[i][j];
@@ -1257,6 +1275,7 @@ void read()
 int main()
 {
     all_load();
+    strcpy_s(filename, "level2.txt");
     read();
     analyze();
     sf::RenderWindow window(sf::VideoMode(1600, 900), "text", sf::Style::Close);
