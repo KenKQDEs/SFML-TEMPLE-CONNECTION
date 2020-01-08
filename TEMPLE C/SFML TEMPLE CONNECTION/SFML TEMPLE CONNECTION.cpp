@@ -3,6 +3,7 @@
 #include <SFML/Audio.hpp>
 #include <SFML/Window.hpp>
 #include "STRUCTURA_DATE_HARTA.hpp"
+#include "MyVector.hpp"
 #include <assert.h>
 #include <math.h>
 #include <fstream>
@@ -11,6 +12,7 @@
 std::fstream f;
 char filename[30];
 char buffer[1000];
+vector<int> prioritati;
 struct _temples
 {
     int i = -1, j = -1;
@@ -39,7 +41,8 @@ sf::Sound checkbutton;
 bool isTemple1present = 0,
 isTemple2present = 0,
 isTemple3present = 0;
-int pozitie;
+bool needsUpdate = 1;
+int pozitie=-1;
 int ok = 0;
 float BoardState[16][16];
 bool viz[16][16];
@@ -50,19 +53,109 @@ const float div1 = 3.f;
 const float div2 = 3.f;
 const float tileW = floor(385 / div1); //385 div 3 ~128px tile w and h
 const float tileH = floor(385 / div2);
+void setPriorities()
+{
+    prioritati.clear();
+    needsUpdate = 0;
+    pereche<int, int> p[3];
+    int it = 0;
+    p[0].first = -1;
+    p[0].second = -1;
+    p[1].first = -1;
+    p[1].second = -1;
+    p[2].first = -1;
+    p[2].second = -1;
+
+    for (int i = 0; i < 3; i++)
+        if (isDragging)
+            if (i != pozitie) prioritati.push_back(i);
+            else 1;
+        else prioritati.push_back(i);
+
+    for (int i = 0; i < 5; i++)
+        for (int j = 0; j < 5; j++)
+        {
+            int X = 3 * i + 1;
+            int Y = 3 * j + 1;
+            if (BoardState[X - 1][Y] > 3 && BoardState[X + 1][Y] > 3 && BoardState[X - 1][Y] != BoardState[X + 1][Y]&&BoardState[X][Y])
+            {
+                if (BoardState[X - 1][Y] > 8)
+                    p[it].first = BoardState[X - 1][Y];
+                else 
+                    p[it].first = BoardState[X - 1][Y] - 1;
+                if (BoardState[X + 1][Y] > 8)
+                p[it].second = BoardState[X + 1][Y];
+                else
+                    p[it].second = BoardState[X + 1][Y]-1;
+                it++;
+                prioritati.push_back(BoardState[X][Y] - 1);
+            }
+            if (BoardState[X][Y - 1] > 3 && BoardState[X][Y + 1] > 3 && BoardState[X][Y - 1] != BoardState[X][Y + 1]&&BoardState[X][Y])
+            {
+               if(BoardState[X][Y - 1]>8)
+                   p[it].first = BoardState[X][Y - 1];
+               else
+                   p[it].first = BoardState[X][Y - 1]-1;
+               if (BoardState[X][Y + 1] > 8)
+                   p[it].second = BoardState[X][Y + 1];
+               else
+                   p[it].second = BoardState[X][Y + 1] - 1;
+                it++;
+                prioritati.push_back(BoardState[X][Y] - 1);
+            }
+
+        }
+
+
+   
+    int K = 0;
+    for (int i = 3; i < 7; i++)
+    {
+        K = 0;
+        for (int k = 0; k < it; k++)
+        {
+            if (i == p[k].first || i == p[k].second)
+            {
+                K = 1;
+                break;
+            }
+
+        }
+       if(K==0) prioritati.push_back(i);
+    }
+    for (int i = 1; i < it - 1; i++)
+        if (p[i].first > 9 && p[i].second > 9)
+            std::swap(p[i], p[i + 1]);
+    for (int i = 0; i < it; i++)
+    {
+        if(prioritati.find(p[i].first)==-1) prioritati.push_back(p[i].first);
+        if (prioritati.find(p[i].second) == -1) prioritati.push_back(p[i].second);
+    }   
+    if (isTemple1present) prioritati.push_back(10);
+    if (isTemple2present) prioritati.push_back(11);
+    if (isTemple3present)  prioritati.push_back(12);
+    if (isDragging == 1) prioritati.push_back(pozitie);
+}
 void DoRotation(int poz, bool dreapta);
 void read();
 void analyze();
 void reset_level()
 {
     read();
-    analyze();
     isTemple1present = 0;
     isTemple2present = 0;
     isTemple3present = 0;
+    temples[0].i = -1;
+    temples[0].j = -1;
+    temples[1].i = -1;
+    temples[1].j = -1;
+    temples[2].i = -1;
+    temples[2].j = -1;
+    analyze();
     alreadyWon = 0;
-    pozitie = 0;
+    pozitie = -1;
     ok = 0;
+    needsUpdate=1;
     isDragging = 0;
     for (int i = 0; i < 16; i++)
         for (int j = 0; j < 16; j++)
@@ -289,6 +382,7 @@ void checkWin()
     for (int i = 0; i < 3; i++)
         if (temples[i].i != -1 && temples[i].j != -1)
         {
+       
             parcurgere(3 * temples[i].i + 1, 3 * temples[i].j + 1);
             break;
         }
@@ -299,11 +393,14 @@ void checkWin()
             std::cout << viz[i][j] << " ";
         std::cout << std::endl;
     }
+    std::cout << isTemple1present << " " << isTemple2present << " " << isTemple3present << std::endl;
+    for (int i = 0; i <= 2; i++)
+        std::cout << temples[i].i << " " << temples[i].j << std::endl;
     if (
         (!isTemple1present || viz[3 * temples[0].i + 1][3 * temples[0].j + 1]) &&
         (!isTemple2present || viz[3 * temples[1].i + 1][3 * temples[1].j + 1]) &&
-        (!isTemple2present || viz[3 * temples[2].i + 1][3 * temples[2].j + 1])
-        )
+        (!isTemple3present || viz[3 * temples[2].i + 1][3 * temples[2].j + 1])
+       )
     {
         std::cout << "WIN" << std::endl;
         //wait 5 seconds
@@ -351,6 +448,7 @@ void analyze()
                 isTemple2present = 1;
                 temples[1].i = i;
                 temples[1].j = j;
+                
             }
             if (BoardState[X][Y] == 12)
             {
@@ -384,7 +482,9 @@ void all_load()
     wrong.setVolume(50);
     win.setBuffer(charge);
     checkbutton.setBuffer(check);
-
+    for (int i = 0; i < 16; i++)
+        for (int j = 0; j < 16; j++)
+            viz[i][j] = 0;
     ////
     ////initializare directii
     ////
@@ -451,7 +551,12 @@ void all_load()
     a.load(Texture::temple2, "temple2.png");
     a.load(Texture::temple3, "temple3.png");
     a.load(Texture::donebutton, "donebutton.png");
-
+    temples[0].i = -1;
+    temples[0].j = -1;
+    temples[1].i = -1;
+    temples[1].j = -1;
+    temples[2].i = -1;
+    temples[2].j = -1;
     for (int i = 0; i < 5; i++) //Initialize tiles
         for (int j = 0; j < 5; j++)
         {
@@ -539,42 +644,21 @@ void drawThings(sf::RenderWindow& window)
         {
             window.draw(tiles[i][j]);
         }
-    if (isDragging) bridge[pozitie].pod.setPosition(mousePos);
-    for (int i = 0; i < 3; i++)
-        if (!(bridge[i].i >= 0 && bridge[i].j >= 0))
-        {
-            if (i != pozitie)
-                window.draw(bridge[i].pod);
-        }
-
-
-    for (int i = 0; i < 3; i++)
-        if ((bridge[i].i >= 0 && bridge[i].j >= 0))
-        {
-            if (i != pozitie)
-                window.draw(bridge[i].pod);
-        }
-
-    if (!isDragging) window.draw(bridge[pozitie].pod);
-
-    for (int i = 3; i < 7; i++)
-        if ((bridge[i].i >= 0 && bridge[i].j >= 0))
-        {
-            if (i != pozitie)
-                window.draw(bridge[i].pod);
-        }
-
-    for (int i = 3; i < 7; i++)
-        if (!(bridge[i].i >= 0 && bridge[i].j >= 0))
-        {
-            if (i != pozitie)
-                window.draw(bridge[i].pod);
-        }
-    for (int i = 0; i < 3; i++)
-        window.draw(temples[i].temple);
-    if (isDragging) window.draw(bridge[pozitie].pod);
-
-
+   if(needsUpdate) setPriorities();
+    if (isDragging == 1) bridge[pozitie].pod.setPosition(mousePos);
+    for (int i = 0; i < prioritati.size; i++)
+        if (prioritati[i] > 6) 
+            switch (prioritati[i])
+            {
+            case 10:window.draw(temples[0].temple);
+                break;
+            case 11: window.draw(temples[1].temple);
+                break;
+            case 12: window.draw(temples[2].temple);
+                break;
+            }   
+        else
+            window.draw(bridge[prioritati[i]].pod);
 }
 bool checkAvailability(int i, int j)
 {
@@ -1017,6 +1101,7 @@ bool punePiesa(sf::Sprite& tile, int i, int j)
                 std::cout << std::setw(4) << BoardState[k][q] << " ";
             std::cout << std::endl;
         }
+        needsUpdate = 1;
         return 1;
     }
     else return 0;
@@ -1142,7 +1227,7 @@ int handleMouseClick(sf::Event e)
                     {
                         if (!Deck.getGlobalBounds().contains(e.mouseButton.x, e.mouseButton.y))
                             destroy(i);
-
+                        needsUpdate = 1;
                         isDragging = 1;
                         return i;
                     }
@@ -1322,5 +1407,4 @@ int main()
         drawThings(window);
         window.display();
     }
-
 }
