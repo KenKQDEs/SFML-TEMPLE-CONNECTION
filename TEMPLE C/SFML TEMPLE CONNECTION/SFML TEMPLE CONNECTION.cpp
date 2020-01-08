@@ -10,6 +10,7 @@
 #include <cstring>
 std::fstream f;
 char filename[30];
+char buffer[1000];
 struct _temples
 {
     int i = -1, j = -1;
@@ -56,6 +57,9 @@ void reset_level()
 {
     read();
     analyze();
+    isTemple1present = 0;
+    isTemple2present = 0;
+    isTemple3present = 0;
     alreadyWon = 0;
     pozitie = 0;
     ok = 0;
@@ -71,7 +75,7 @@ void reset_level()
     bridge[0].dir[2].second = bridge[0].dir[3].second = 322;
     ////--
     bridge[1].dir[0].first = 0;
-    bridge[1].dir[0].second = 1;
+    bridge[1].dir[0].second = -1;
     bridge[1].dir[1].first = 1;
     bridge[1].dir[1].second = 0;
     bridge[1].dir[2].first = bridge[0].dir[3].first = 322;
@@ -251,19 +255,19 @@ void prepWork()
         for (int j = 0; j < 5; j++)
         {
             int X = 3 * i + 1;
-            int Y = 3 * j + 1; 
+            int Y = 3 * j + 1;
             if (BoardState[X][Y] == 0)
                 if (BoardState[X - 1][Y] > 3 && BoardState[X + 1][Y] > 3 && BoardState[X - 1][Y] != BoardState[X + 1][Y])
-                    BoardState[X][Y] = 15; 
-                else  
-                    if (BoardState[X][Y - 1] > 3 && BoardState[X][Y + 1] > 3 && BoardState[X][Y - 1] != BoardState[X][Y + 1]) 
-                        BoardState[X][Y] = 15; 
-          
+                    BoardState[X][Y] = 15;
+                else
+                    if (BoardState[X][Y - 1] > 3 && BoardState[X][Y + 1] > 3 && BoardState[X][Y - 1] != BoardState[X][Y + 1])
+                        BoardState[X][Y] = 15;
+
         }
     for (int i = 3; i < 7; i++)
     {
-        int X = 3 * bridge[i].i+1+3*bridge[i].dir[0].first;
-        int Y = 3 * bridge[i].j+1 + 3 * bridge[i].dir[0].second;
+        int X = 3 * bridge[i].i + 1 + 3 * bridge[i].dir[0].first;
+        int Y = 3 * bridge[i].j + 1 + 3 * bridge[i].dir[0].second;
         if (BoardState[X][Y])
             if (BoardState[X + bridge[i].dir[0].first][Y + bridge[i].dir[0].second] == 0)
             {
@@ -274,7 +278,7 @@ void prepWork()
     for (int p = 0; p < 15; p++)
     {
         for (int q = 0; q < 15; q++)
-            std::cout <<std::setw(4)<< BoardState[p][q] << " ";
+            std::cout << std::setw(4) << BoardState[p][q] << " ";
         std::cout << std::endl;
     }
 
@@ -327,14 +331,13 @@ void analyze()
                 temples[0].temple.setOrigin(56, 72);
 
                 temples[0].temple.setPosition(tile_bounds.left + tile_bounds.width / 2.f, tile_bounds.top + tile_bounds.height / 2);
-
+                if(BoardState[X-1][Y]&&BoardState[X][Y+1]) temples[0].temple.setRotation(0);
                 if (BoardState[X][Y + 1] && BoardState[X + 1][Y]) temples[0].temple.setRotation(90);
                 if (BoardState[X][Y - 1] && BoardState[X + 1][Y]) temples[0].temple.setRotation(180);
                 if (BoardState[X - 1][Y] && BoardState[X][Y - 1]) temples[0].temple.setRotation(270);
                 isTemple1present = 1;
                 temples[0].i = i;
                 temples[0].j = j;
-
             }
             if (BoardState[X][Y] == 11)
             {
@@ -363,7 +366,12 @@ void analyze()
                 temples[2].j = j;
             }
         }
-
+    if (isTemple1present == 0) temples[0].temple.setColor(sf::Color(255, 255, 255, 0));
+        else temples[0].temple.setColor(sf::Color(255, 255, 255, 255));
+    if (isTemple2present == 0) temples[1].temple.setColor(sf::Color(255, 255, 255, 0));
+        else temples[1].temple.setColor(sf::Color(255, 255, 255, 255));
+    if (isTemple3present == 0) temples[2].temple.setColor(sf::Color(255, 255, 255, 0));
+        else temples[2].temple.setColor(sf::Color(255, 255, 255, 255));
 }
 void all_load()
 {
@@ -389,7 +397,7 @@ void all_load()
     bridge[0].dir[2].second = bridge[0].dir[3].second = 322;
     ////--
     bridge[1].dir[0].first = 0;
-    bridge[1].dir[0].second = 1;
+    bridge[1].dir[0].second = -1;
     bridge[1].dir[1].first = 1;
     bridge[1].dir[1].second = 0;
     bridge[1].dir[2].first = bridge[0].dir[3].first = 322;
@@ -488,7 +496,7 @@ void all_load()
 
 
     bridge[1].pod.setPosition(1171, 216);
-    bridge[1].pod.setOrigin(235-190, 60);
+    bridge[1].pod.setOrigin(170, 60);
     bridge[1].pod.setTexture(a.get(Texture::road2));
 
 
@@ -593,8 +601,7 @@ bool checkAvailability(int i, int j)
             for (int c = 0; c < 4; c++)
                 if (bridge[pozitie].dir[c].first != 322 && bridge[pozitie].dir[c].second != 322)
                 {
-                    if (c == 1)
-                    {
+                    
                         if (BoardState[X + bridge[pozitie].dir[c].first][Y + bridge[pozitie].dir[c].second])
                         {
                             wrong.play();
@@ -605,21 +612,6 @@ bool checkAvailability(int i, int j)
                             wrong.play();
                             return 0;
                         }
-                    }
-                    else
-                    {
-                        if (BoardState[X - bridge[pozitie].dir[c].first][Y - bridge[pozitie].dir[c].second])
-                        {
-                            wrong.play();
-                            return 0;
-                        }
-                        if(BoardState[X+bridge[1].dir[1].first][Y+bridge[1].dir[1].second])
-                        {
-                            wrong.play();
-                            return 0;
-                        }
-                    }
-                  
                 }
 
             break;
@@ -639,7 +631,7 @@ bool checkAvailability(int i, int j)
                     {
                         wrong.play();
                         return 0;
-                       
+
                     }
                     if (c == 0);
                 }
@@ -712,8 +704,45 @@ bool checkAvailability(int i, int j)
             {
             case 0:
             case 1:
-            case 2:
+                if (BoardState[X][Y])
 
+                {
+                    wrong.play();
+                    return 0;
+                }
+                if (c == 0)
+                {
+                    if(BoardState[X-bridge[pozitie].dir[1].first][Y-bridge[pozitie].dir[1].second])
+                    {
+                        wrong.play();
+                        return 0;
+                    }
+                    if (BoardState[X + bridge[pozitie].dir[1].first][Y + bridge[pozitie].dir[1].second])
+                    {
+                        wrong.play();
+                        return 0;
+                    }
+                    if (BoardState[X - bridge[pozitie].dir[0].first][Y - bridge[pozitie].dir[0].second])
+                    {
+                        wrong.play();
+                        return 0;
+                    }
+                }
+                else
+                {
+                    if (BoardState[X - bridge[pozitie].dir[c].first][Y - bridge[pozitie].dir[c].second])
+                    {
+                        wrong.play();
+                        return 0;
+                    }
+                    if (BoardState[X + bridge[pozitie].dir[c].first][Y + bridge[pozitie].dir[c].second])
+                    {
+                        wrong.play();
+                        return 0;
+                    }
+                }
+                break;
+            case 2:
                 if (BoardState[X][Y])
 
                 {
@@ -920,20 +949,19 @@ bool punePiesa(sf::Sprite& tile, int i, int j)
                 {
                 case 0:
                 case 1:
-
                     BoardState[X][Y] = 1 + pozitie;
                     if (c == 1)
                     {
-                            BoardState[X + bridge[pozitie].dir[c].first][Y + bridge[pozitie].dir[c].second] = 1 + pozitie;
-                            BoardState[X - bridge[pozitie].dir[c].first][Y - bridge[pozitie].dir[c].second] = 1 + pozitie;
-                    }
+                        BoardState[X + bridge[pozitie].dir[c].first][Y + bridge[pozitie].dir[c].second] = 1 + pozitie;
+                        BoardState[X - bridge[pozitie].dir[c].first][Y - bridge[pozitie].dir[c].second] = 1 + pozitie;
+                    }   
                     else
                     {
-                            BoardState[X - bridge[pozitie].dir[c].first][Y - bridge[pozitie].dir[c].second] = 1 + pozitie;
-                            BoardState[X + bridge[1].dir[1].first][Y + bridge[1].dir[1].second] = 1 + pozitie;
+                        BoardState[X - bridge[pozitie].dir[c].first][Y - bridge[pozitie].dir[c].second] = 1 + pozitie;
+                        BoardState[X + bridge[pozitie].dir[1].first][Y + bridge[pozitie].dir[1].second] = 1 + pozitie;
                     }
                     break;
-                      
+
                 case 2:
                     BoardState[X][Y] = 1 + pozitie;
                     BoardState[X + bridge[pozitie].dir[c].first][Y + bridge[pozitie].dir[c].second] = 1 + pozitie;
@@ -1040,14 +1068,15 @@ void destroy(int pos)
                 BoardState[X][Y] = 0;
                 if (c == 1)
                 {
-                    BoardState[X + bridge[pozitie].dir[c].first][Y + bridge[pozitie].dir[c].second] = 0;
-                    BoardState[X - bridge[pozitie].dir[c].first][Y - bridge[pozitie].dir[c].second] = 0;
+                    BoardState[X + bridge[pos].dir[c].first][Y + bridge[pos].dir[c].second] = 0;
+                    BoardState[X - bridge[pos].dir[c].first][Y - bridge[pos].dir[c].second] = 0;
                 }
                 else
                 {
-                    BoardState[X - bridge[pozitie].dir[c].first][Y - bridge[pozitie].dir[c].second] = 0;
-                    BoardState[X + bridge[1].dir[1].first][Y + bridge[1].dir[1].second] = 0;
+                    BoardState[X - bridge[pos].dir[c].first][Y - bridge[pos].dir[c].second] = 0;
+                    BoardState[X + bridge[pos].dir[1].first][Y + bridge[pos].dir[1].second] =0;
                 }
+                break;
             case 2:
                 BoardState[X][Y] = 0;
                 BoardState[X + bridge[pos].dir[c].first][Y + bridge[pos].dir[c].second] = 0;
@@ -1259,7 +1288,13 @@ void handle_Events(sf::RenderWindow& window)
                 std::cout << "SADASDASDSADASDASF";
                 reset_level();
                 break;
+            case sf::Keyboard::Num3:
+                strcpy_s(filename, "level3.txt");
+                std::cout << "SADASDASDSADASDASF";
+                reset_level();
+                break;
             }
+        
             break;
         }
     }
@@ -1275,7 +1310,7 @@ void read()
 int main()
 {
     all_load();
-    strcpy_s(filename, "level2.txt");
+    strcpy_s(filename, "level3.txt");
     read();
     analyze();
     sf::RenderWindow window(sf::VideoMode(1600, 900), "text", sf::Style::Close);
