@@ -24,6 +24,7 @@ struct bridge_
     pereche<int, int> dir[4];
     int i = -1, j = -1;
     sf::RectangleShape Collision[4];
+    float sgn = 1; //(+ sau nu)
     int maxCol;
 }bridge[7];
 sf::Sprite tiles[5][5];
@@ -53,11 +54,20 @@ const float div1 = 3.f;
 const float div2 = 3.f;
 const float tileW = floor(385 / div1); //385 div 3 ~128px tile w and h
 const float tileH = floor(385 / div2);
+bool contains(int i, float x, float y)
+{
+    sf::FloatRect bounds= bridge[i].pod.getGlobalBounds();
+    if (bounds.contains(x, y))
+        return 1;
+
+    return 0;
+}
 void setPriorities()
 {
     prioritati.clear();
+    std::cout << std::endl;
     needsUpdate = 0;
-    pereche<int, int> p[3];
+    pereche<int, int> p[4];
     int it = 0;
     p[0].first = -1;
     p[0].second = -1;
@@ -65,76 +75,128 @@ void setPriorities()
     p[1].second = -1;
     p[2].first = -1;
     p[2].second = -1;
+    int crossroad[3];
+    int cit = 0;
 
-    for (int i = 0; i < 3; i++)
-        if (isDragging)
-            if (i != pozitie) prioritati.push_back(i);
-            else 1;
-        else prioritati.push_back(i);
 
     for (int i = 0; i < 5; i++)
         for (int j = 0; j < 5; j++)
         {
             int X = 3 * i + 1;
             int Y = 3 * j + 1;
-            if (BoardState[X - 1][Y] > 3 && BoardState[X + 1][Y] > 3 && BoardState[X - 1][Y] != BoardState[X + 1][Y]&&BoardState[X][Y])
+            if (BoardState[X - 1][Y] != BoardState[X + 1][Y] && BoardState[X][Y] && BoardState[X - 1][Y] && BoardState[X + 1][Y])
             {
-                if (BoardState[X - 1][Y] > 8)
-                    p[it].first = BoardState[X - 1][Y];
-                else 
+                if (BoardState[X - 1][Y] > 0 && BoardState[X - 1][Y] < 10)
+                {
                     p[it].first = BoardState[X - 1][Y] - 1;
-                if (BoardState[X + 1][Y] > 8)
-                p[it].second = BoardState[X + 1][Y];
-                else
-                    p[it].second = BoardState[X + 1][Y]-1;
+
+                }
+                else if (BoardState[X - 1][Y] >=10)
+                {
+                    p[it].first = BoardState[X - 1][Y];
+                }
+                if (BoardState[X + 1][Y] > 0 && BoardState[X + 1][Y] < 10)
+                {
+                    p[it].second = BoardState[X + 1][Y] - 1;
+
+                }
+                else if (BoardState[X - 1][Y] >= 10)
+                {
+                    p[it].second = BoardState[X + 1][Y];
+                }
                 it++;
-                prioritati.push_back(BoardState[X][Y] - 1);
+                crossroad[cit] = BoardState[X][Y] - 1;
+                cit++;
             }
-            if (BoardState[X][Y - 1] > 3 && BoardState[X][Y + 1] > 3 && BoardState[X][Y - 1] != BoardState[X][Y + 1]&&BoardState[X][Y])
-            {
-               if(BoardState[X][Y - 1]>8)
-                   p[it].first = BoardState[X][Y - 1];
-               else
-                   p[it].first = BoardState[X][Y - 1]-1;
-               if (BoardState[X][Y + 1] > 8)
-                   p[it].second = BoardState[X][Y + 1];
-               else
-                   p[it].second = BoardState[X][Y + 1] - 1;
-                it++;
-                prioritati.push_back(BoardState[X][Y] - 1);
-            }
+            else
+                if (BoardState[X][Y - 1] != BoardState[X][Y + 1] && BoardState[X][Y] && BoardState[X][Y - 1] && BoardState[X][Y + 1])
+                {
+
+                    if (BoardState[X][Y - 1] > 0 && BoardState[X][Y - 1] < 10)
+                    {
+                        p[it].first = BoardState[X][Y - 1] - 1;
+
+                    }
+                    else if (BoardState[X][Y-1] >= 10)
+                    {
+                        p[it].first = BoardState[X][Y - 1];
+                    }
+                    if (BoardState[X][Y + 1] > 0 && BoardState[X][Y + 1] < 10)
+                    {
+                        p[it].second = BoardState[X][Y + 1] - 1;
+
+                    }
+                    else if (BoardState[X][Y+1] >= 10)
+                    {
+                        p[it].second = BoardState[X][Y + 1];
+                    }
+                    it++;
+                    crossroad[cit] = BoardState[X][Y] - 1;
+                    cit++;
+                }
 
         }
-
-
-   
-    int K = 0;
-    for (int i = 3; i < 7; i++)
+    for (int i = 0; i < 3; i++)
     {
-        K = 0;
-        for (int k = 0; k < it; k++)
+        int OK = 0;
+        for (int j = 0; j < cit; j++)
         {
-            if (i == p[k].first || i == p[k].second)
+            if (crossroad[j] == i)
             {
-                K = 1;
+                OK = 1; 
                 break;
             }
-
         }
-       if(K==0) prioritati.push_back(i);
+      if(OK==0)  prioritati.push_back(i);
     }
-    for (int i = 1; i < it - 1; i++)
-        if (p[i].first > 9 && p[i].second > 9)
-            std::swap(p[i], p[i + 1]);
+    for (int i = 0; i < cit; i++)
+       if(i!=pozitie||isDragging==0) prioritati.push_back(crossroad[i]);
+    for (int i = 3; i < 7; i++)
+    {
+        int OK = 0;
+        for (int j = 0; j < it; j++)
+            if (i == p[j].first || i == p[j].second)
+            {
+                OK = 1;
+                break;
+            }
+        if (OK == 0) prioritati.push_back(i);
+    }
     for (int i = 0; i < it; i++)
     {
-        if(prioritati.find(p[i].first)==-1) prioritati.push_back(p[i].first);
-        if (prioritati.find(p[i].second) == -1) prioritati.push_back(p[i].second);
-    }   
-    if (isTemple1present) prioritati.push_back(10);
-    if (isTemple2present) prioritati.push_back(11);
-    if (isTemple3present)  prioritati.push_back(12);
+        if (p[i].first >= 10)
+        {
+            prioritati.push_back(p[i].first);
+            prioritati.push_back(p[i].second);
+        }
+        else if (p[i].second >= 10)
+        {
+            prioritati.push_back(p[i].second);
+            prioritati.push_back(p[i].first);
+        }
+    }
+    for (int i = 0; i < it; i++)
+        if (p[i].first < 10 && p[i].second < 10)
+        {
+            prioritati.push_back(p[i].first);
+            prioritati.push_back(p[i].second);
+        }
+   
+ 
+    if (isTemple1present&&prioritati.find(10)==-1) prioritati.push_back(10);
+    if (isTemple2present&&prioritati.find(11) == -1) prioritati.push_back(11);
+    if (isTemple3present&& prioritati.find(12) == -1)  prioritati.push_back(12);
     if (isDragging == 1) prioritati.push_back(pozitie);
+    for (int i = 0; i < 15; i++)
+        std::cout << prioritati[i] << " ";
+    std::cout << std::endl;
+    std::cout << "FINAL:crossroads,perechi" << std::endl;
+    for (int i = 0; i < cit; i++)
+        std::cout << crossroad[i] << " ";
+    std::cout << std::endl;
+    for (int i = 0; i < it; i++)
+        std::cout << p[i].first << " " << p[i].second << std::endl;
+
 }
 void DoRotation(int poz, bool dreapta);
 void read();
@@ -161,14 +223,14 @@ void reset_level()
         for (int j = 0; j < 16; j++)
             viz[i][j] = 0;
     bridge[0].dir[0].first = 0;
-    bridge[0].dir[0].second = -1;
+    bridge[0].dir[0].second = 1;
     bridge[0].dir[1].first = 1;
     bridge[0].dir[1].second = 0;
     bridge[0].dir[2].first = bridge[0].dir[3].first = 322;
     bridge[0].dir[2].second = bridge[0].dir[3].second = 322;
     ////--
     bridge[1].dir[0].first = 0;
-    bridge[1].dir[0].second = -1;
+    bridge[1].dir[0].second = 1;
     bridge[1].dir[1].first = 1;
     bridge[1].dir[1].second = 0;
     bridge[1].dir[2].first = bridge[0].dir[3].first = 322;
@@ -299,7 +361,6 @@ void parcurgere(int i, int j)
     if (i < 0 || i>14 || j < 0 || j>14) return;
     if (BoardState[i][j] && viz[i][j] != 1) viz[i][j] = 1;
     else return;
-    sf::sleep(sf::milliseconds(100));
     for (int k = 0; k < 15; k++)
     {
         for (int q = 0; q < 15; q++)
@@ -425,7 +486,7 @@ void analyze()
             if (BoardState[X][Y] == 10)
             {
                 sf::FloatRect tile_bounds = tiles[i][j].getGlobalBounds();
-                temples[0].temple.setOrigin(56, 72);
+                temples[0].temple.setOrigin(57, 72);
 
                 temples[0].temple.setPosition(tile_bounds.left + tile_bounds.width / 2.f, tile_bounds.top + tile_bounds.height / 2);
                 if(BoardState[X-1][Y]&&BoardState[X][Y+1]) temples[0].temple.setRotation(0);
@@ -439,7 +500,7 @@ void analyze()
             if (BoardState[X][Y] == 11)
             {
                 sf::FloatRect tile_bounds = tiles[i][j].getGlobalBounds();
-                temples[1].temple.setOrigin(56, 55);
+                temples[1].temple.setOrigin(56, 56);
                 temples[1].temple.setPosition(tile_bounds.left + tile_bounds.width / 2.f, tile_bounds.top + tile_bounds.height / 2);
                 if (BoardState[X][Y + 1] && BoardState[X + 1][Y] && BoardState[X][Y + 2]) temples[1].temple.setRotation(0);
                 if (BoardState[X][Y - 1] && BoardState[X + 1][Y] && BoardState[X + 2][Y]) temples[1].temple.setRotation(90);
@@ -490,14 +551,14 @@ void all_load()
     ////
     ////----
     bridge[0].dir[0].first = 0;
-    bridge[0].dir[0].second = -1;
+    bridge[0].dir[0].second = +1;
     bridge[0].dir[1].first = 1;
     bridge[0].dir[1].second = 0;
     bridge[0].dir[2].first = bridge[0].dir[3].first = 322;
     bridge[0].dir[2].second = bridge[0].dir[3].second = 322;
     ////--
     bridge[1].dir[0].first = 0;
-    bridge[1].dir[0].second = -1;
+    bridge[1].dir[0].second = 1;
     bridge[1].dir[1].first = 1;
     bridge[1].dir[1].second = 0;
     bridge[1].dir[2].first = bridge[0].dir[3].first = 322;
@@ -569,67 +630,64 @@ void all_load()
     temples[1].temple.setTexture(a.get(Texture::temple2));
     temples[2].temple.setTexture(a.get(Texture::temple3));
     Deck.setOrigin(0, 0);
-    Deck.setPosition(740, 108);
-    Deck.setSize(sf::Vector2f(760, 645));
+    Deck.setPosition(840, 108);
+    Deck.setSize(sf::Vector2f(720, 645));
     Deck.setFillColor(sf::Color(0, 119, 255));
-    Deck_Text.setPosition(757, 129);
+    Deck_Text.setPosition(857, 129);
     Deck_Text.setFont(fontc.get(Fonts::bookantq));
     Deck_Text.setString("DECK AREA");
     Deck_Text.setFillColor(sf::Color::White);
 
     donebutton.setTexture(a.get(Texture::donebutton));
-    donebutton.setPosition(178, 802);
+    donebutton.setPosition(178, 852);
     donebutton.setOrigin(345 / 2.f, 141 / 2.f);
     donebutton.setScale(0.5, 0.5);
 
 
 
     bridge[0].pod.setPosition(935, 216);
-    bridge[0].pod.setOrigin(190, 60);
+    bridge[0].pod.setOrigin(50, 55);
     bridge[0].pod.setTexture(a.get(Texture::road1));
-    bridge[0].maxCol = 2;
-    /*  bridge[0].Collision[0].setFillColor(sf::Color(0, 0, 0, 0));
-    bridge[0].Collision[1].setFillColor(sf::Color(0, 0, 0, 0));
-    bridge[0].Collision[0].setOutlineColor(sf::Color(0, 255, 255, 0));
-    bridge[0].Collision[1].setOutlineColor(sf::Color(0, 255, 255, 0));
-    bridge[0].Collision[0].setOutlineThickness(5);*/
-
-
+    bridge[0].maxCol = 1;
+    
 
 
 
 
 
     bridge[1].pod.setPosition(1171, 216);
-    bridge[1].pod.setOrigin(170, 60);
+    bridge[1].pod.setOrigin(50, 55);
     bridge[1].pod.setTexture(a.get(Texture::road2));
+    bridge[1].maxCol = 1;
+
 
 
     bridge[2].pod.setPosition(1278, 253);
-    bridge[2].pod.setOrigin(45, 65);
+    bridge[2].pod.setOrigin(45, 70);
     bridge[2].pod.setTexture(a.get(Texture::road3));
 
 
     bridge[3].pod.setPosition(934, 553);
-    bridge[3].pod.setOrigin(201, 215 - 85);
+    bridge[3].pod.setOrigin(196, 130);
     // bridge[3].pod.setScale(roadScale);
     bridge[3].pod.setTexture(a.get(Texture::bridge1));
+   
 
 
     bridge[4].pod.setPosition(1043, 520);
-    bridge[4].pod.setOrigin(45, 215 - 85);
+    bridge[4].pod.setOrigin(60, 215 - 85);
     // bridge[4].pod.setScale(roadScale);
     bridge[4].pod.setTexture(a.get(Texture::bridge2));
 
 
     bridge[5].pod.setPosition(1321, 553);
-    bridge[5].pod.setOrigin(45, 145);
+    bridge[5].pod.setOrigin(37, 145);
     // bridge[5].pod.setScale(roadScale);
     bridge[5].pod.setTexture(a.get(Texture::bridge3));
 
 
     bridge[6].pod.setPosition(1147, 722);
-    bridge[6].pod.setOrigin(127, 170);
+    bridge[6].pod.setOrigin(137, 167);
     // bridge[6].pod.setScale(roadScale);
     bridge[6].pod.setTexture(a.get(Texture::bridge4));
 
@@ -645,9 +703,14 @@ void drawThings(sf::RenderWindow& window)
             window.draw(tiles[i][j]);
         }
    if(needsUpdate) setPriorities();
-    if (isDragging == 1) bridge[pozitie].pod.setPosition(mousePos);
+   if (isDragging == 1)
+   {
+       bridge[pozitie].pod.setPosition(mousePos);
+       for (int h = 0; h < 4; h++)
+           bridge[pozitie].Collision[h].setPosition(bridge[pozitie].pod.getPosition() +bridge[pozitie].sgn* bridge[pozitie].pod.getOrigin());
+   }
     for (int i = 0; i < prioritati.size; i++)
-        if (prioritati[i] > 6) 
+        if (prioritati[i] >8) 
             switch (prioritati[i])
             {
             case 10:window.draw(temples[0].temple);
@@ -659,6 +722,9 @@ void drawThings(sf::RenderWindow& window)
             }   
         else
             window.draw(bridge[prioritati[i]].pod);
+    for (int i = 0; i < 7; i++)
+        for (int h = 0; h < 4; h++)
+            window.draw(bridge[i].Collision[h]);
 }
 bool checkAvailability(int i, int j)
 {
@@ -753,6 +819,7 @@ bool checkAvailability(int i, int j)
                         return 0;
                     }
                     DoRotation(pozitie, 0);
+
                     if (BoardState[X + bridge[pozitie].dir[c].first][Y + bridge[pozitie].dir[c].second] ||
                         BoardState[X - bridge[pozitie].dir[c].first][Y - bridge[pozitie].dir[c].second])
                     {
@@ -991,6 +1058,9 @@ bool punePiesa(sf::Sprite& tile, int i, int j)
     {
         sf::FloatRect tile_bounds = tile.getGlobalBounds();
         bridge[pozitie].pod.setPosition(tile_bounds.left + tile_bounds.width / 2, tile_bounds.top + tile_bounds.height / 2);
+        for (int k = 0; k < 4; k++)
+            bridge[pozitie].Collision[k].setPosition(bridge[pozitie].pod.getPosition() +bridge[pozitie].sgn* bridge[pozitie].pod.getOrigin());
+
         BoardState[1 + i * 3][3 * j + 1] = 1 + pozitie;
         {
             int X, Y;
@@ -1196,18 +1266,15 @@ void destroy(int pos)
                 break;
             case 6:
                 if (c == 1)
-                    BoardState[X][Y] = 0;
-                BoardState[X - bridge[pos].dir[c].first][Y - bridge[pos].dir[c].second] = 0;
-                if (c == 1)
                 {
-
-                    DoRotation(pos, 0);
-                    BoardState[X - bridge[pos].dir[c].first][Y - bridge[pos].dir[c].second] = 0;
-                    DoRotation(pos, 1);
+                    BoardState[X][Y] = 0;
+                    BoardState[X - bridge[pos].dir[0].first][Y - bridge[pos].dir[0].second] = 0;
+                    BoardState[X - bridge[pos].dir[1].first][Y - bridge[pos].dir[1].second] = 0;
                 }
                 else
-                    BoardState[X + bridge[pos].dir[c].first][Y + bridge[pos].dir[c].second] = 0;
-                break;
+                {
+                    BoardState[X - bridge[pos].dir[0].first][Y - bridge[pos].dir[0].second] = 0;
+                }
 
             }
         }
@@ -1222,15 +1289,32 @@ int handleMouseClick(sf::Event e)
         if (isDragging == 0)
         {
             if (alreadyWon == 0)
-                for (int i = 6; i >= 0; i--)
-                    if (bridge[i].pod.getGlobalBounds().contains(e.mouseButton.x, e.mouseButton.y))
-                    {
-                        if (!Deck.getGlobalBounds().contains(e.mouseButton.x, e.mouseButton.y))
-                            destroy(i);
-                        needsUpdate = 1;
-                        isDragging = 1;
-                        return i;
-                    }
+            {
+                if (Deck.getGlobalBounds().contains(e.mouseButton.x, e.mouseButton.y))
+                    for (int i = 6; i >= 0; i--)
+                        if (contains(i, e.mouseButton.x, e.mouseButton.y))
+                        {
+                            if (!Deck.getGlobalBounds().contains(e.mouseButton.x, e.mouseButton.y))
+                                destroy(i);
+                            needsUpdate = 1;
+                            isDragging = 1;
+                            return i;
+                        }
+                        else continue;
+                else
+                    for (int i = 0; i < 7; i++)
+                        if (contains(i, e.mouseButton.x, e.mouseButton.y))
+                        {
+                            if (!Deck.getGlobalBounds().contains(e.mouseButton.x, e.mouseButton.y))
+                                destroy(i);
+                            needsUpdate = 1;
+                            isDragging = 1;
+                            return i;
+                        }
+
+
+            }
+               
 
         }
         else
@@ -1261,7 +1345,11 @@ int handleMouseClick(sf::Event e)
         if (Deck.getGlobalBounds().contains(sf::Vector2f(e.mouseButton.x, e.mouseButton.y)))
             bridge[pozitie].pod.setPosition(sf::Vector2f(e.mouseButton.x, e.mouseButton.y));
         else
+        {
             bridge[pozitie].pod.setPosition(900, 240);
+            for(int q=0;q<4;q++)
+            bridge[pozitie].Collision[q].setPosition(bridge[pozitie].pod.getPosition() +bridge[pozitie].sgn* bridge[pozitie].pod.getOrigin());
+        }
 
     }
     return pos;
@@ -1295,6 +1383,7 @@ void DoRotation(int poz, bool dreapta)
                             }
                 std::cout << "LA STANGA:" << bridge[poz].dir[i].first << " " << bridge[poz].dir[i].second << std::endl;
                 std::cout << "POZ:" << poz << std::endl;
+            
             }
             else
             {
@@ -1328,20 +1417,6 @@ void handle_Events(sf::RenderWindow& window)
     {
         switch (event.type)
         {
-        case sf::Event::Closed: window.close(); break;
-        case sf::Event::MouseButtonPressed:
-            ok = handleMouseClick(event);
-            if (ok != -1)
-            {
-
-                pozitie = ok;
-            }
-            std::cout << event.mouseButton.x << " " << event.mouseButton.y << std::endl;
-            break;
-        case sf::Event::MouseMoved:
-            mousePos.x = event.mouseMove.x;
-            mousePos.y = event.mouseMove.y;
-            break;
         case sf::Event::MouseWheelScrolled:
             if (isDragging)
             {
@@ -1359,6 +1434,20 @@ void handle_Events(sf::RenderWindow& window)
                     DoRotation(pozitie, 1);
                 }
             }
+            break;
+        case sf::Event::Closed: window.close(); break;
+        case sf::Event::MouseButtonPressed:
+            ok = handleMouseClick(event);
+            if (ok != -1)
+            {
+
+                pozitie = ok;
+            }
+            std::cout << event.mouseButton.x << " " << event.mouseButton.y << std::endl;
+            break;
+        case sf::Event::MouseMoved:
+            mousePos.x = event.mouseMove.x;
+            mousePos.y = event.mouseMove.y;
             break;
         case sf::Event::KeyPressed:
             switch (event.key.code)
