@@ -1,68 +1,351 @@
 ﻿  SFML TEMPLE CONNECTION.cpp
-C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(312,92): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(107,55): warning C4244: '=': conversion from 'T' to 'T', possible loss of data
+          with
+          [
+              T=int
+          ]
+          and
+          [
+              T=float
+          ]
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(108,55): warning C4244: '=': conversion from 'P' to 'T', possible loss of data
+          with
+          [
+              P=int
+          ]
+          and
+          [
+              T=float
+          ]
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(146,72): warning C4244: '=': conversion from 'T' to 'T', possible loss of data
           with
           [
               T=float
           ]
-C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(312,75): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+          and
+          [
+              T=int
+          ]
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(147,73): warning C4244: '=': conversion from 'T' to 'P', possible loss of data
           with
           [
               T=float
           ]
-C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(314,87): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+          and
+          [
+              P=int
+          ]
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(153,55): warning C4244: '=': conversion from 'T' to 'int', possible loss of data
           with
           [
               T=float
           ]
-C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(314,70): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(154,55): warning C4244: '=': conversion from 'T' to 'int', possible loss of data
           with
           [
               T=float
           ]
-C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(326,94): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(186,76): warning C4244: '=': conversion from 'T' to 'T', possible loss of data
           with
           [
               T=float
           ]
-C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(326,77): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+          and
+          [
+              T=int
+          ]
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(187,77): warning C4244: '=': conversion from 'T' to 'P', possible loss of data
           with
           [
               T=float
           ]
-C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(340,88): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+          and
+          [
+              P=int
+          ]
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(193,59): warning C4244: '=': conversion from 'T' to 'int', possible loss of data
           with
           [
               T=float
           ]
-C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(340,71): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(194,63): warning C4244: '=': conversion from 'T' to 'int', possible loss of data
           with
           [
               T=float
           ]
-C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(341,88): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(232,56): warning C4244: '=': conversion from 'float' to 'T', possible loss of data
+          with
+          [
+              T=int
+          ]
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(237,54): warning C4244: '=': conversion from 'float' to 'T', possible loss of data
+          with
+          [
+              T=int
+          ]
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(241,57): warning C4244: '=': conversion from 'float' to 'P', possible loss of data
+          with
+          [
+              P=int
+          ]
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(246,55): warning C4244: '=': conversion from 'float' to 'P', possible loss of data
+          with
+          [
+              P=int
+          ]
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(249,51): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(258,60): warning C4244: '=': conversion from 'float' to 'T', possible loss of data
+          with
+          [
+              T=int
+          ]
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(263,58): warning C4244: '=': conversion from 'float' to 'T', possible loss of data
+          with
+          [
+              T=int
+          ]
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(267,61): warning C4244: '=': conversion from 'float' to 'P', possible loss of data
+          with
+          [
+              P=int
+          ]
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(272,59): warning C4244: '=': conversion from 'float' to 'P', possible loss of data
+          with
+          [
+              P=int
+          ]
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(275,55): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(463,55): warning C4244: '=': conversion from 'T' to 'T', possible loss of data
+          with
+          [
+              T=int
+          ]
+          and
+          [
+              T=float
+          ]
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(464,55): warning C4244: '=': conversion from 'P' to 'T', possible loss of data
+          with
+          [
+              P=int
+          ]
+          and
+          [
+              T=float
+          ]
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(853,33): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(858,33): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(941,34): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(942,13): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(949,92): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
           with
           [
               T=float
           ]
-C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(341,71): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(949,46): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
           with
           [
               T=float
           ]
-C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(417,41): warning C4244: '=': conversion from 'int' to 'T', possible loss of data
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(1202,105): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(1205,104): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(1236,101): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(1239,100): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(1279,101): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(1282,100): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(1048,32): warning C4390: ';': empty controlled statement found; is this the intent?
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(1341,72): warning C4244: '=': conversion from 'T' to 'T', possible loss of data
+          with
+          [
+              T=int
+          ]
+          and
+          [
+              T=float
+          ]
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(1342,72): warning C4244: '=': conversion from 'P' to 'T', possible loss of data
+          with
+          [
+              P=int
+          ]
+          and
+          [
+              T=float
+          ]
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(1348,27): warning C4553: '==': result of expression not used; did you intend '='?
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(1356,46): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(1371,109): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(1379,109): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(1381,109): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(1398,42): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(1401,109): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(1402,109): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(1406,109): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(1407,109): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(1412,42): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(1413,105): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(1414,105): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(1419,46): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(1422,109): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(1423,109): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(1428,109): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(1435,46): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(1436,109): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(1437,109): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(1440,109): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(1445,46): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(1446,105): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(1451,109): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(1472,59): warning C4244: '=': conversion from 'int' to 'T', possible loss of data
           with
           [
               T=float
           ]
-C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(418,41): warning C4244: '=': conversion from 'int' to 'T', possible loss of data
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(1473,59): warning C4244: '=': conversion from 'int' to 'T', possible loss of data
           with
           [
               T=float
           ]
-C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(424,50): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(1611,83): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(1611,66): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(1613,71): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(1613,54): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(1615,96): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(1615,79): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(1624,71): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(1624,54): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(1626,96): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(1626,79): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(1640,79): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(1640,62): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(1642,79): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(1642,62): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(1649,98): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(1649,81): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(1663,81): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(1663,64): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(1670,81): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(1670,64): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(1675,81): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(1675,64): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(1680,81): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(1680,64): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(1685,80): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(1685,63): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(1696,88): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(1696,71): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(1697,88): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(1697,71): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(1791,50): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(1816,41): warning C4244: '=': conversion from 'int' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+C:\Users\User\source\repos\SFML TEMPLE CONNECTION\SFML TEMPLE CONNECTION.cpp(1817,41): warning C4244: '=': conversion from 'int' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
   Generating code
-  1 of 183 functions ( 0.5%) were compiled, the rest were copied from previous compilation.
+  2 of 334 functions ( 0.6%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    1 functions had inline decision re-evaluated but remain unchanged
+    5 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   SFML TEMPLE CONNECTION.vcxproj -> C:\Users\User\source\repos\SFML TEMPLE CONNECTION\x64\Release\SFML TEMPLE CONNECTION.exe

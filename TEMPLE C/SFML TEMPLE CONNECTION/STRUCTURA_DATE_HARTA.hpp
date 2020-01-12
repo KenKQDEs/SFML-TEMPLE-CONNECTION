@@ -1,5 +1,5 @@
 
-#include <iostream>
+#pragma once
 template <typename T, typename P>
 struct pereche
 {

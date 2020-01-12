@@ -152,10 +152,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="SFML TEMPLE CONNECTION.cpp" />
-    <ClCompile Include="Source.cpp" />
-    <ClCompile Include="Source1.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="MyVector.hpp" />
     <ClInclude Include="STRUCTURA_DATE_HARTA.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
