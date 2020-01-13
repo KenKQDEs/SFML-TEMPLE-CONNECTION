@@ -13,6 +13,7 @@ std::fstream f;
 sf::RenderWindow window(sf::VideoMode(1600, 900), "text", sf::Style::Close);
 char filename[30];
 char buffer[1000];
+char istr[10];
 int b_iter = 0;
 vector<pereche<int,bool>> undoStack; // bool: 1 = INSERT 0=REMOVE
 int undoBufferSize = 0;
@@ -44,10 +45,21 @@ struct GameState
     sf::Vector2f tile[7];
     float rotatie[7];
 }situatie[256];
+struct meniu
+{
+    int selectedOptionIndex = 0;
+    sf::Font font;
+    sf::Text option[3];
+}m;
+struct levelpanel {
+    sf::RectangleShape rectangle;
+    sf::Texture texture;
+}lvl[20];
 sf::Sprite tiles[5][5];
 sf::Text ClockTimer;
 sf::Vector2f mousePos;
 sf::RectangleShape Deck;
+sf::CircleShape triangle(10.f, 3);
 sf::Sprite border;
 sf::Sprite donebutton;
 sf::Sprite undobutton;
@@ -56,6 +68,7 @@ sf::Sprite homebutton;
 sf::Sprite winmark;
 sf::Sprite winbutton;
 sf::Sprite ceas_bkg;
+sf::Sprite menu_bkg;
 sf::Text Deck_Text;
 sf::SoundBuffer meep_merp;
 sf::SoundBuffer bpress;
@@ -75,11 +88,15 @@ bool needsUndo = 0;
 bool isTemple1present = 0,
 isTemple2present = 0,
 isTemple3present = 0;
+bool isIngame = 0;
 bool viz[16][16];
 bool isDragging = 0;
 bool alreadyWon = 0;
 bool still_undoing = 0;
 bool keepTimer = 0;
+bool x = true;
+bool playx = false;
+bool instructionsx = false;
 int last_action = 3;
 //scaling
 const float div1 = 3.f;
@@ -496,6 +513,7 @@ namespace Texture
         home,
         winicon,
         winbutton,
+        menu_bkg
     };
 }
 
@@ -1679,14 +1697,18 @@ int handleMouseClick(sf::Event e)
         }
         if (homebutton.getGlobalBounds().contains(e.mouseButton.x, e.mouseButton.y))
         {
-            //jump to tile screen main menu;
+     
             if (isDebugging == 1) std::cout << "AI APASAT HOMEBUTTON" << std::endl;
+            isIngame = 0;
+            x = 1;
         }
         if (winbutton.getGlobalBounds().contains(e.mouseButton.x, e.mouseButton.y))
         {
-            //jump to level selector;
+            
             if (isDebugging == 1) std::cout << "AI APASAT WINBUTTON" << std::endl;
-           // alreadyWon = 0;
+            alreadyWon = 0;
+            playx = 1;
+            isIngame = 0;
         }
     
     }
@@ -1768,21 +1790,6 @@ void handle_Events(sf::RenderWindow& window)
     {
         switch (event.type)
         {
-        case sf::Event::TextEntered:
-            buffer[b_iter] =toupper( event.text.unicode);
-            b_iter++;
-            if (strstr(buffer, "DEBUG")) 
-            {
-                isDebugging = !isDebugging;
-                buffer_clear();
-                if (isDebugging == 0)
-                {
-                    system("cls");
-                    std::cout << "EXITING DEBUG MODE" << std::endl;
-                }
-                else std::cout << "ENTERING DEBUG MODE" << std::endl;
-            }
-            break;
 
         case sf::Event::MouseWheelScrolled:
             if (isDragging)
@@ -1802,6 +1809,22 @@ void handle_Events(sf::RenderWindow& window)
                 }
             }
             break;
+        case sf::Event::TextEntered:
+            buffer[b_iter] =toupper( event.text.unicode);
+            b_iter++;
+            if (strstr(buffer, "DEBUG")) 
+            {
+                isDebugging = !isDebugging;
+                buffer_clear();
+                if (isDebugging == 0)
+                {
+                    system("cls");
+                    std::cout << "EXITING DEBUG MODE" << std::endl;
+                }
+                else std::cout << "ENTERING DEBUG MODE" << std::endl;
+            }
+            break;
+
         case sf::Event::Closed: window.close(); break;
         case sf::Event::MouseButtonPressed:
             ok = handleMouseClick(event);
@@ -1817,6 +1840,7 @@ void handle_Events(sf::RenderWindow& window)
             mousePos.y = event.mouseMove.y;
             break;
         case sf::Event::KeyPressed:
+            if(isDebugging)
             switch (event.key.code)
             {
             case sf::Keyboard::Num1:
@@ -1846,24 +1870,386 @@ void read()
     for (int i = 0; i < 15; i++)
         for (int j = 0; j < 15; j++)
             f >> BoardState[i][j];
+    analyze();
     f.close();
 }
+void all_load_menu()
+{
+    a.load(Texture::menu_bkg, "homescreen.jpg");
+    menu_bkg.setTexture(a.get(Texture::menu_bkg));
+    fontc.load(Fonts::arial, "arial.ttf");
 
+
+    ///
+    triangle.setFillColor(sf::Color::Red);
+    triangle.setOutlineColor(sf::Color::Black);
+    triangle.setOutlineThickness(2);
+    triangle.setPosition(sf::Vector2f(288, 225));
+    if (!m.font.loadFromFile("arial.ttf"))
+    {
+
+    }
+    m.option[0].setFont(m.font);
+    m.option[0].setCharacterSize(90);
+    m.option[0].setFillColor(sf::Color::Black);
+    m.option[0].setString("Play");
+    m.option[0].setPosition(sf::Vector2f(1600 / 2.3, 900 / 3 * 1.2));
+
+    m.option[1].setFont(m.font);
+    m.option[1].setCharacterSize(90);
+    m.option[1].setFillColor(sf::Color::White);
+    m.option[1].setString("Instructions");
+    m.option[1].setPosition(sf::Vector2f(1600 / 2.9, 900 / 3 * 1.6));
+
+    m.option[2].setFont(m.font);
+    m.option[2].setCharacterSize(90);
+    m.option[2].setFillColor(sf::Color::White);
+    m.option[2].setString("Exit");
+    m.option[2].setPosition(sf::Vector2f(1600 / 2.3, 900 / 3 * 2));
+
+    m.selectedOptionIndex = 0;
+    ////
+    if (!lvl[0].texture.loadFromFile("ch1.png"))
+    {
+
+    }
+    if (!lvl[1].texture.loadFromFile("ch2.png"))
+    {
+
+    }
+    if (!lvl[2].texture.loadFromFile("ch3.png"))
+    {
+
+    }
+    if (!lvl[3].texture.loadFromFile("ch4.png"))
+    {
+
+    }
+    if (!lvl[4].texture.loadFromFile("ch5.png"))
+    {
+
+    }
+    if (!lvl[5].texture.loadFromFile("ch6.png"))
+    {
+
+    }
+    if (!lvl[6].texture.loadFromFile("ch7.png"))
+    {
+
+    }
+    if (!lvl[7].texture.loadFromFile("ch8.png"))
+    {
+
+    }
+    if (!lvl[8].texture.loadFromFile("ch9.png"))
+    {
+
+    }
+    if (!lvl[9].texture.loadFromFile("ch10.png"))
+    {
+
+    }
+    if (!lvl[10].texture.loadFromFile("ch11.png"))
+    {
+
+    }
+    if (!lvl[11].texture.loadFromFile("ch12.png"))
+    {
+
+    }
+    if (!lvl[12].texture.loadFromFile("ch13.png"))
+    {
+
+    }
+    if (!lvl[13].texture.loadFromFile("ch14.png"))
+    {
+
+    }
+    if (!lvl[14].texture.loadFromFile("ch15.png"))
+    {
+
+    }
+    if (!lvl[15].texture.loadFromFile("ch16.png"))
+    {
+
+    }
+    if (!lvl[16].texture.loadFromFile("ch17.png"))
+    {
+
+    }
+    if (!lvl[17].texture.loadFromFile("ch18.png"))
+    {
+
+    }
+    if (!lvl[18].texture.loadFromFile("ch19.png"))
+    {
+
+    }
+    if (!lvl[19].texture.loadFromFile("ch20.png"))
+    {
+
+    }
+
+    for (int i = 0; i < 20; i++)
+    {
+        lvl[i].rectangle.setSize(sf::Vector2f(150.f, 150.f));
+        lvl[i].rectangle.setTexture(&lvl[i].texture);
+    }
+
+    lvl[0].rectangle.setPosition(sf::Vector2f(225, 70));
+    lvl[1].rectangle.setPosition(sf::Vector2f(475, 70));
+    lvl[2].rectangle.setPosition(sf::Vector2f(725, 70));
+    lvl[3].rectangle.setPosition(sf::Vector2f(975, 70));
+    lvl[4].rectangle.setPosition(sf::Vector2f(1225, 70));
+    lvl[5].rectangle.setPosition(sf::Vector2f(225, 250));
+    lvl[6].rectangle.setPosition(sf::Vector2f(475, 250));
+    lvl[7].rectangle.setPosition(sf::Vector2f(725, 250));
+    lvl[8].rectangle.setPosition(sf::Vector2f(975, 250));
+    lvl[9].rectangle.setPosition(sf::Vector2f(1225, 250));
+    lvl[10].rectangle.setPosition(sf::Vector2f(225, 430));
+    lvl[11].rectangle.setPosition(sf::Vector2f(475, 430));
+    lvl[12].rectangle.setPosition(sf::Vector2f(725, 430));
+    lvl[13].rectangle.setPosition(sf::Vector2f(975, 430));
+    lvl[14].rectangle.setPosition(sf::Vector2f(1225, 430));
+    lvl[15].rectangle.setPosition(sf::Vector2f(225, 610));
+    lvl[16].rectangle.setPosition(sf::Vector2f(475, 610));
+    lvl[17].rectangle.setPosition(sf::Vector2f(725, 610));
+    lvl[18].rectangle.setPosition(sf::Vector2f(975, 610));
+    lvl[19].rectangle.setPosition(sf::Vector2f(1225, 610));
+
+
+
+
+}
+void instructions(sf::RenderWindow& window)
+{
+    if (instructionsx == true)
+    {
+        sf::Event event;
+        sf::Text text;
+ 
+        
+        text.setCharacterSize(35);
+        text.setFillColor(sf::Color::White);
+        text.setPosition(sf::Vector2f(1600 / 5.4, 900 / 3 * 1.2));
+        text.setFont(fontc.get(Fonts::arial));
+        text.setString("  Temple Connection is a game in which you have to connect the  \n temples between them so you can walk from each temple to every \nother one. You have 3 pieces with roads and 4 with bridges which\n you can use. The first 5 challenges are at a Starter Difficulty\n    Level, the next 5 are at the Junior Difficulty Level, the   \n challenges from 11 to 15 are at an Expert Difficulty Level and \nthe last 5 are at the Master Difficulty Level. Be careful! There\n	    is only one way you can connect those temples.");
+
+        window.draw(text);
+        while (window.pollEvent(event))
+        {
+            switch (event.type)
+            {
+            case sf::Event::KeyReleased:
+                if (event.key.code == sf::Keyboard::Escape)
+                {
+                    instructionsx = false;
+                    x = true;
+                }
+
+            }
+
+        }
+    }
+}
+void moveLeft(int& i)
+{
+    if (i > 0)
+    {
+        if ((i > 1 && i < 5) || (i > 5 && i < 10) || (i > 10 && i < 15) || (i > 15 && i < 20))
+        {
+            triangle.setPosition(sf::Vector2f(triangle.getPosition().x - 250, triangle.getPosition().y));
+        }
+
+        else
+        {
+            triangle.setPosition(sf::Vector2f(1295, triangle.getPosition().y - 180));
+        }
+
+        i--;
+
+    }
+}
+
+void moveRight( int& i)
+{
+    if (i < 19)
+    {
+        if ((i >= 0 && i < 4) || (i > 4 && i < 9) || (i > 9 && i < 14) || (i > 14 && i < 19))
+        {
+            triangle.setPosition(sf::Vector2f(triangle.getPosition().x + 250, triangle.getPosition().y));
+        }
+
+        else
+        {
+            triangle.setPosition(sf::Vector2f(295, triangle.getPosition().y + 180));
+        }
+
+        i++;
+    }
+}
+void MoveUp()
+{
+    if (m.selectedOptionIndex - 1 >= 0)
+    {
+        m.option[m.selectedOptionIndex].setFillColor(sf::Color::White);
+        m.selectedOptionIndex--;
+        m.option[m.selectedOptionIndex].setFillColor(sf::Color::Black);
+    }
+}
+
+void MoveDown()
+{
+    if (m.selectedOptionIndex + 1 < 3)
+    {
+        m.option[m.selectedOptionIndex].setFillColor(sf::Color::White);
+        m.selectedOptionIndex++;
+        m.option[m.selectedOptionIndex].setFillColor(sf::Color::Black);
+    }
+}
+
+int GetPressedOption()
+{
+    if (x == true)
+    {
+        return m.selectedOptionIndex;
+    }
+}
+void lvlDraw(sf::RenderWindow& window)
+{
+    for (int i = 0; i < 20; i++)
+    {
+        window.draw(lvl[i].rectangle);
+    }
+}
+void play(sf::RenderWindow& window, int& i)
+{
+    if (playx == true)
+    {
+        
+        lvlDraw(window);
+        sf::Event event;
+        while (window.pollEvent(event))
+        {
+            switch (event.type)
+            {
+            case sf::Event::KeyReleased:
+                switch (event.key.code)
+                {
+                case sf::Keyboard::Escape:
+                    playx = false;
+                    x = true;
+                case sf::Keyboard::Left:
+                    moveLeft(i);
+                    break;
+                case sf::Keyboard::Right:
+                    moveRight(i);
+                    break;
+                case sf::Keyboard::Return:
+                    strcpy_s(filename, "level");
+                    _itoa_s(i, istr, 10);
+                    strcat_s(filename, istr);
+                    strcat_s(filename, ".txt");
+                    isIngame = 1;
+                    playx = 0;
+                    reset_level();
+
+                }
+
+            }
+        }
+
+    }
+}
+
+void events(sf::RenderWindow& window)
+{
+    sf::Event event;
+    while (window.pollEvent(event))
+    {
+        switch (event.type)
+        {
+        case sf::Event::KeyReleased:
+            switch (event.key.code)
+            {
+            case sf::Keyboard::Up:
+                MoveUp();
+                break;
+
+            case sf::Keyboard::Down:
+                MoveDown();
+                break;
+
+            case sf::Keyboard::Return:
+                switch (GetPressedOption())
+                {
+                case 0:
+                    std::cout << "Play" << std::endl;
+                    x = false;
+                    playx = true;
+                    break;
+                case 1:
+                    std::cout << "Instructions" << std::endl;
+                    x = false;
+                    instructionsx = true;
+                    break;
+                case 2:
+                    window.close();
+                }
+                break;
+          
+            }
+        case sf::Event::Closed:
+            window.close();
+            break;
+        }
+    }
+}
+void menuDraw(sf::RenderWindow& window)
+{
+    if (x == true)
+        for (int i = 0; i < 3; i++)
+        {
+            window.draw(m.option[i]);
+        }
+
+}
 int main()
 {
   
+    all_load_menu();
     all_load();
-    strcpy_s(filename, "level3.txt");
     read();
-    analyze();
     load1();
-    window.setFramerateLimit(120);
+    int i = 0;
+ 
+    //window.setFramerateLimit(120);
     while (window.isOpen())
     {
-        handle_Events(window);
-        window.clear(sf::Color(0, 127, 196));
-        drawThings(window);
-        window.display();
+        if (isIngame == 1) {
+            window.clear(sf::Color(0, 127, 196));
+            handle_Events(window);
+            
+            drawThings(window);
+            window.display();
+        }
+        else 
+        {
+            window.clear();
+            window.draw(menu_bkg);
+            events(window);
+            menuDraw(window);
+            play(window,i);
+            
+            instructions(window);
+            if (playx == true)
+            {
+                window.draw(triangle);
+            }
+            window.display();
+        }
+
+       
     }
 
 }
