@@ -10,7 +10,7 @@
 #include <iomanip>
 #include <cstring>
 std::fstream f;
-sf::RenderWindow window(sf::VideoMode(1600, 900), "text", sf::Style::Close);
+sf::RenderWindow window(sf::VideoMode(1600, 900), "TEMPLE CONNECTION", sf::Style::Close);
 char filename[30];
 char buffer[1000];
 char istr[10];
@@ -50,6 +50,7 @@ struct meniu
     int selectedOptionIndex = 0;
     sf::Font font;
     sf::Text option[3];
+    sf::RectangleShape button[3];
 }m;
 struct levelpanel {
     sf::RectangleShape rectangle;
@@ -69,6 +70,7 @@ sf::Sprite winmark;
 sf::Sprite winbutton;
 sf::Sprite ceas_bkg;
 sf::Sprite menu_bkg;
+sf::Text text;
 sf::Text Deck_Text;
 sf::SoundBuffer meep_merp;
 sf::SoundBuffer bpress;
@@ -1907,6 +1909,13 @@ void all_load_menu()
     m.option[2].setString("Exit");
     m.option[2].setPosition(sf::Vector2f(1600 / 2.3, 900 / 3 * 2));
 
+    m.button[0].setSize(sf::Vector2f(90, 120));
+    m.button[0].setPosition(sf::Vector2f(1600 / 2.3, 900 / 3 * 1.2));
+    m.button[1].setSize(sf::Vector2f(90, 120));
+    m.button[1].setPosition(sf::Vector2f(1600 / 2.9, 900 / 3 * 1.6));
+    m.button[2].setSize(sf::Vector2f(90, 120));
+    m.button[2].setPosition(sf::Vector2f(1600 / 2.3, 900 / 3 * 2));
+
     m.selectedOptionIndex = 0;
     ////
     if (!lvl[0].texture.loadFromFile("ch1.png"))
@@ -2017,39 +2026,28 @@ void all_load_menu()
     lvl[18].rectangle.setPosition(sf::Vector2f(975, 610));
     lvl[19].rectangle.setPosition(sf::Vector2f(1225, 610));
 
+    text.setCharacterSize(35);
+    text.setFillColor(sf::Color::White);
+    text.setPosition(sf::Vector2f(1600 / 5.4, 900 / 3 * 1.2));
+    text.setFont(fontc.get(Fonts::arial));
+    text.setString("  Temple Connection is a game in which you have to connect the  \n temples between them so you can walk from each temple to every \nother one. You have 3 pieces with roads and 4 with bridges which\n you can use. The first 5 challenges are at a Starter Difficulty\n    Level, the next 5 are at the Junior Difficulty Level, the   \n challenges from 11 to 15 are at an Expert Difficulty Level and \nthe last 5 are at the Master Difficulty Level. Be careful! There\n	    is only one way you can connect those temples.");
+
 
 
 
 }
-void instructions(sf::RenderWindow& window)
+void instructions(sf::RenderWindow& window,sf::Event event)
 {
-    if (instructionsx == true)
+    
+    switch (event.type)
     {
-        sf::Event event;
-        sf::Text text;
- 
-        
-        text.setCharacterSize(35);
-        text.setFillColor(sf::Color::White);
-        text.setPosition(sf::Vector2f(1600 / 5.4, 900 / 3 * 1.2));
-        text.setFont(fontc.get(Fonts::arial));
-        text.setString("  Temple Connection is a game in which you have to connect the  \n temples between them so you can walk from each temple to every \nother one. You have 3 pieces with roads and 4 with bridges which\n you can use. The first 5 challenges are at a Starter Difficulty\n    Level, the next 5 are at the Junior Difficulty Level, the   \n challenges from 11 to 15 are at an Expert Difficulty Level and \nthe last 5 are at the Master Difficulty Level. Be careful! There\n	    is only one way you can connect those temples.");
-
-        window.draw(text);
-        while (window.pollEvent(event))
+    case sf::Event::KeyReleased:
+        if (event.key.code == sf::Keyboard::Escape)
         {
-            switch (event.type)
-            {
-            case sf::Event::KeyReleased:
-                if (event.key.code == sf::Keyboard::Escape)
-                {
-                    instructionsx = false;
-                    x = true;
-                }
-
-            }
-
+            instructionsx = false;
+            x = true;
         }
+
     }
 }
 void moveLeft(int& i)
@@ -2122,57 +2120,79 @@ void lvlDraw(sf::RenderWindow& window)
         window.draw(lvl[i].rectangle);
     }
 }
-void play(sf::RenderWindow& window, int& i)
-{
-    if (playx == true)
-    {
-        
-        lvlDraw(window);
-        sf::Event event;
-        while (window.pollEvent(event))
-        {
-            switch (event.type)
-            {
-            case sf::Event::KeyReleased:
-                switch (event.key.code)
-                {
-                case sf::Keyboard::Escape:
-                    playx = false;
-                    x = true;
-                case sf::Keyboard::Left:
-                    moveLeft(i);
-                    break;
-                case sf::Keyboard::Right:
-                    moveRight(i);
-                    break;
-                case sf::Keyboard::Return:
-                    strcpy_s(filename, "level");
-                    _itoa_s(i, istr, 10);
-                    strcat_s(filename, istr);
-                    strcat_s(filename, ".txt");
-                    isIngame = 1;
-                    playx = 0;
-                    reset_level();
 
-                }
 
-            }
-        }
-
-    }
-}
-
-void events(sf::RenderWindow& window)
+void events(sf::RenderWindow& window,int &i)
 {
     sf::Event event;
     while (window.pollEvent(event))
     {
+        if (instructionsx == 1)
+            instructions(window, event);
         switch (event.type)
         {
+      
+        case sf::Event::MouseButtonPressed:
+            if (x == 1)
+            {
+                for (int j = 0; j < 3; j++)
+                    if (m.option[j].getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y))
+                    {
+                        switch (j)
+                        {
+                        case 0:
+                            std::cout << "Play" << std::endl;
+                            x = false;
+                            playx = true;
+                            break;
+                        case 1:
+                            std::cout << "Instructions" << std::endl;
+                            x = false;
+                            instructionsx = true;
+                            break;
+                        case 2:
+                            window.close();
+                            break;
+                        }
+                    }
+                   
+            }
+            else if (playx == true)
+            {
+                for (int k = 0; k < 20; k++)
+                    if (lvl[k].rectangle.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y))
+                    {
+                        strcpy_s(filename, "level");
+                        _itoa_s(k, istr, 10);
+                        strcat_s(filename, istr);
+                        strcat_s(filename, ".txt");
+                        isIngame = 1;
+                        playx = 0;
+                        reset_level();
+                    }
+
+            }
+            break;
         case sf::Event::KeyReleased:
             
             switch (event.key.code)
             {
+                //
+           
+            case sf::Keyboard::Escape:
+                if (playx == true)
+                {
+                    playx = false;
+                    x = true;
+                }
+                break;
+            case sf::Keyboard::Left:
+                if (playx == true) moveLeft(i);
+                break;
+            case sf::Keyboard::Right:
+                if (playx == true) moveRight(i);
+                break;
+                //
             case sf::Keyboard::Up:
                 MoveUp();
                 break;
@@ -2182,11 +2202,22 @@ void events(sf::RenderWindow& window)
                 break;
 
             case sf::Keyboard::Return:
+                if (playx == 1)
+                {
+                    strcpy_s(filename, "level");
+                    _itoa_s(i, istr, 10);
+                    strcat_s(filename, istr);
+                    strcat_s(filename, ".txt");
+                    isIngame = 1;
+                    playx = 0;
+                    reset_level();
+                }
+                else
                 switch (GetPressedOption())
                 {
                 case 0:
-                    std::cout << "Play" << std::endl;
-                    x = false;
+                   std::cout << "Play" << std::endl;
+                     x = false;
                     playx = true;
                     break;
                 case 1:
@@ -2222,11 +2253,11 @@ int main()
 {
   
     all_load_menu();
-    all_load();
-    read();
+ 
     load1();
     int i = 0;
- 
+    all_load();
+
    // window.setFramerateLimit(10);
     while (window.isOpen())
     {
@@ -2241,15 +2272,15 @@ int main()
         {
             window.clear();
             window.draw(menu_bkg);
-            events(window);
+            events(window,i);
             menuDraw(window);
-            play(window,i);
             
-            instructions(window);
+            if(playx==true) lvlDraw(window);
             if (playx == true)
             {
                 window.draw(triangle);
             }
+           if(instructionsx) window.draw(text);
             window.display();
         }
 
