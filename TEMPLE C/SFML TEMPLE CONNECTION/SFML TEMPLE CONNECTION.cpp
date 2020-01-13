@@ -2170,6 +2170,7 @@ void events(sf::RenderWindow& window)
         switch (event.type)
         {
         case sf::Event::KeyReleased:
+            
             switch (event.key.code)
             {
             case sf::Keyboard::Up:
@@ -2195,14 +2196,17 @@ void events(sf::RenderWindow& window)
                     break;
                 case 2:
                     window.close();
+                    break;
                 }
                 break;
           
             }
+            break;
         case sf::Event::Closed:
             window.close();
             break;
         }
+        break;
     }
 }
 void menuDraw(sf::RenderWindow& window)
@@ -2223,7 +2227,7 @@ int main()
     load1();
     int i = 0;
  
-    //window.setFramerateLimit(120);
+   // window.setFramerateLimit(10);
     while (window.isOpen())
     {
         if (isIngame == 1) {
