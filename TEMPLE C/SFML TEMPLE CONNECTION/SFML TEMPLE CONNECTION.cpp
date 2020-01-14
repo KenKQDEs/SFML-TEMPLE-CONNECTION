@@ -828,7 +828,7 @@ void all_load()
     textX = 778;
     textY = 59;
     ceas_bkg.setTexture(a.get(Texture::ceasbkg));
-    ceas_bkg.setPosition(780, 60);
+    ceas_bkg.setPosition(780, 75);
     ceas_bkg.setOrigin(285, 75);
     ceas_bkg.setScale(0.5, 0.5);
     temples[0].i = -1;
@@ -851,10 +851,11 @@ void all_load()
     Deck.setOrigin(0, 0);
     Deck.setPosition(840, 143);
     Deck.setSize(sf::Vector2f(720, 645));
+    Deck.setScale(sf::Vector2f(0.85, 0.9));
     Deck.setFillColor(sf::Color(0, 119, 255));
     Deck.setOutlineColor(sf::Color::White);
     Deck.setOutlineThickness(3);
-    Deck_Text.setPosition(1381, 105);
+    Deck_Text.setPosition(1260, 105);
     Deck_Text.setFont(fontc.get(Fonts::bookantq));
     Deck_Text.setString("DECK AREA");
     Deck_Text.setFillColor(sf::Color::White);
@@ -966,7 +967,7 @@ void drawThings(sf::RenderWindow& window)
         aux /= 10;
         spc++;
     }
-    ClockTimer.setPosition(sf::Vector2f(textX-(int)ClockTimer.getCharacterSize()/10 * spc, textY));
+    ClockTimer.setPosition(sf::Vector2f(textX-(int)ClockTimer.getCharacterSize()/10 * spc, textY+15));
     ClockTimer.setString(s);
     window.draw(ceas_bkg);
     window.draw(ClockTimer);
@@ -2054,7 +2055,7 @@ void moveLeft(int& i)
 {
     if (i > 0)
     {
-        if ((i > 1 && i < 5) || (i > 5 && i < 10) || (i > 10 && i < 15) || (i > 15 && i < 20))
+        if ((i > 0 && i < 5) || (i > 5 && i < 10) || (i > 10 && i < 15) || (i > 15 && i < 20))
         {
             triangle.setPosition(sf::Vector2f(triangle.getPosition().x - 250, triangle.getPosition().y));
         }
